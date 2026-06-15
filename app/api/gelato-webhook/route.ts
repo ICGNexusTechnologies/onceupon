@@ -17,6 +17,12 @@ import { sendShipmentEmail } from "@/lib/email";
  *   https://yourdomain.com/api/gelato-webhook?secret=YOUR_SECRET
  * and set GELATO_WEBHOOK_SECRET to the same value.
  */
+// Gelato pings the URL with a GET when you create/validate the webhook — respond 200
+// so it accepts the endpoint as reachable.
+export async function GET() {
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(req: NextRequest) {
   const secret = process.env.GELATO_WEBHOOK_SECRET;
   if (secret) {
