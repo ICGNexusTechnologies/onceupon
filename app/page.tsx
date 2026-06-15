@@ -2,7 +2,7 @@ import Link from "next/link";
 import Showcase from "@/components/Showcase";
 import { getShowcaseBooks, getFeaturedReview } from "@/lib/showcase";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [books, featuredReview] = await Promise.all([getShowcaseBooks(), getFeaturedReview()]);
