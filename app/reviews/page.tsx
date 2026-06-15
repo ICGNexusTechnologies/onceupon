@@ -140,7 +140,7 @@ export default function ReviewsPage() {
           <div className="card" style={{ marginBottom: 48 }}>
             <h3 style={{ fontSize: "1.3rem", marginBottom: 4 }}>Leave a review</h3>
             <p style={{ color: "var(--ink-soft)", fontSize: ".9rem", marginBottom: 24 }}>
-              Signed in as <strong>{user.name}</strong>
+              Signed in as <strong>{user?.name}</strong>
             </p>
             <form onSubmit={handleSubmit}>
               <div className="field">
