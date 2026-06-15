@@ -29,7 +29,7 @@ export default function AboutPage() {
       {/* Origin story */}
       <section className="band" style={{ background: "var(--paper-2)" }}>
         <div className="wrap" style={{ maxWidth: 820 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+          <div className="split-grid">
             <div>
               <span className="eyebrow" style={{ marginBottom: 18, display: "inline-flex" }}>
                 ✦ How it started
@@ -142,10 +142,7 @@ export default function AboutPage() {
               not generated.
             </p>
           </div>
-          <div
-            className="card"
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40 }}
-          >
+          <div className="card feature-grid">
             <div>
               <div style={{ fontSize: "2rem", marginBottom: 14 }}>✍️</div>
               <h3 style={{ fontSize: "1.2rem", marginBottom: 10 }}>Story first</h3>
@@ -199,14 +196,7 @@ export default function AboutPage() {
       {/* Stats */}
       <section className="band" style={{ background: "var(--paper-2)" }}>
         <div className="wrap">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 24,
-              textAlign: "center",
-            }}
-          >
+          <div className="stats-grid">
             {[
               { num: "12,000+", label: "Families served" },
               { num: "50,000+", label: "Books created" },

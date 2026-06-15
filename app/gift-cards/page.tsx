@@ -56,7 +56,7 @@ export default function GiftCardsPage() {
 
           {/* Tier picker */}
           <h2 style={{ fontSize: "1.3rem", marginBottom: 18, color: "var(--plum)" }}>Choose an amount</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 36 }}>
+          <div className="gift-tier-grid">
             {TIERS.map((t) => (
               <div
                 key={t.key}
@@ -133,11 +133,7 @@ export default function GiftCardsPage() {
           </div>
 
           {/* Summary + submit */}
-          <div style={{
-            background: "var(--plum)", color: "#fff", borderRadius: 18,
-            padding: "24px 28px", display: "flex", justifyContent: "space-between",
-            alignItems: "center", gap: 20, flexWrap: "wrap",
-          }}>
+          <div className="gift-summary">
             <div>
               <div style={{ color: "#d8cdf0", fontSize: ".88rem", marginBottom: 2 }}>You&apos;re buying</div>
               <div style={{ fontFamily: "var(--display)", fontWeight: 700, fontSize: "1.2rem" }}>
