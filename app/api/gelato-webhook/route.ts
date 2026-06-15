@@ -37,7 +37,9 @@ export async function POST(req: NextRequest) {
   try {
     payload = (await req.json()) as GelatoEvent;
   } catch {
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    // Empty / non-JSON body = Gelato's create-time validation ping. Acknowledge
+    // with 200 so Gelato accepts the URL (it requires a 2xx to validate it).
+    return NextResponse.json({ received: true, ignored: "no body" });
   }
 
   // Gelato sends several event types; we only care about fulfillment status changes.
