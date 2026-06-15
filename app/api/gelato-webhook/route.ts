@@ -54,12 +54,12 @@ export async function POST(req: NextRequest) {
 
   const wasShipped = order.status === "shipped" || order.status === "fulfilled";
 
-  // Pull tracking off the first shipment, if present.
-  const shipment = payload.shipment ?? payload.shipments?.[0];
-  if (shipment) {
-    if (shipment.trackingCode) order.trackingCode = shipment.trackingCode;
-    if (shipment.trackingUrl) order.trackingUrl = shipment.trackingUrl;
-    if (shipment.carrier) order.carrier = shipment.carrier;
+  // Gelato nests tracking under items[].fulfillments[] (carrier = shipmentMethodName).
+  const fulfillment = payload.items?.find((it) => it.fulfillments?.length)?.fulfillments?.[0];
+  if (fulfillment) {
+    if (fulfillment.trackingCode) order.trackingCode = fulfillment.trackingCode;
+    if (fulfillment.trackingUrl) order.trackingUrl = fulfillment.trackingUrl;
+    if (fulfillment.shipmentMethodName) order.carrier = fulfillment.shipmentMethodName;
   }
 
   order.status = status;
@@ -95,16 +95,19 @@ export async function POST(req: NextRequest) {
 }
 
 // Loose shape — Gelato's payloads vary by event; we read defensively.
-interface GelatoShipment {
+interface GelatoFulfillment {
   trackingCode?: string;
   trackingUrl?: string;
-  carrier?: string;
+  shipmentMethodName?: string;
+}
+interface GelatoItem {
+  fulfillmentStatus?: string;
+  fulfillments?: GelatoFulfillment[];
 }
 interface GelatoEvent {
   orderId?: string;
   order?: { id?: string };
   fulfillmentStatus?: string;
   status?: string;
-  shipment?: GelatoShipment;
-  shipments?: GelatoShipment[];
+  items?: GelatoItem[];
 }
