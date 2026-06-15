@@ -65,7 +65,8 @@ export async function getShowcaseBooks(limit = 6): Promise<ShowcaseBook[]> {
       });
     }
     return result;
-  } catch {
+  } catch (error) {
+    console.error("Failed to load showcase books", error);
     return []; // landing page must render even if the DB is unreachable
   }
 }
