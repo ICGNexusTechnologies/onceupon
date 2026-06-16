@@ -2,7 +2,7 @@ import type { IBook } from "@/models/Book";
 import type { IOrder } from "@/models/Order";
 import User from "@/models/User";
 import { buildPrintPdf } from "@/lib/printPdf";
-import { uploadPdf } from "@/lib/cloudinary";
+import { uploadPrintPdf } from "@/lib/blob";
 
 const GELATO_ORDER_URL = "https://order.gelatoapis.com/v4/orders";
 
@@ -93,7 +93,7 @@ export async function submitOrderToGelato(
   // Build the single combined print PDF (front cover + interior + back cover) to
   // Gelato's spec, and host it where Gelato can fetch it. pageCount = total pages.
   const { pdf: printPdf, pageCount } = await buildPrintPdf(book);
-  const fileUrl = await uploadPdf(printPdf, `print-${order._id}`);
+  const fileUrl = await uploadPrintPdf(printPdf, `print-${order._id}`);
 
   const ship = (order.shippingAddress ?? {}) as GelatoAddress;
   const addr = ship.address ?? {};

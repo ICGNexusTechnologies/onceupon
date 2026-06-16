@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Book from "@/models/Book";
 import { buildPrintPdf } from "@/lib/printPdf";
-import { uploadPdf } from "@/lib/cloudinary";
+import { uploadPrintPdf } from "@/lib/blob";
 
 export const maxDuration = 300;
 
 // DEV-ONLY: builds the Gelato print-spec PDF from an existing completed book and
-// uploads it to Cloudinary, returning a public URL Gelato can fetch.
-// ?light=1 lowers image compression so the file fits Cloudinary's free 10MB cap
-// (format/dimensions are unchanged — only JPEG quality drops).
+// uploads it to Vercel Blob, returning a public URL Gelato can fetch.
+// ?light=1 lowers image compression for a smaller test file (optional — Blob has
+// no per-file size cap, so full quality is fine).
 export async function GET(req: NextRequest) {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json({ error: "Not available in production." }, { status: 404 });
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
       light ? { imageTransform: "f_jpg,q_auto:low,w_1280" } : {}
     );
     const sizeMb = (pdf.length / 1_048_576).toFixed(1);
-    const url = await uploadPdf(pdf, `print-test-${book._id}`);
+    const url = await uploadPrintPdf(pdf, `print-test-${book._id}`);
 
     return NextResponse.json({ book: book.title, pageCount, sizeMb, url });
   } catch (err) {
