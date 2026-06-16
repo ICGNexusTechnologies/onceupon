@@ -1,9 +1,9 @@
 node_modules/
 .next/
 out/
-.env
-.env.local
-.env*.local
+# Ignore every .env variant (incl. pulled .env.vercel / .env.prod); keep only the template
+.env*
+!.env.example
 cloudinary-onboarding.js
 .DS_Store
 *.tsbuildinfo

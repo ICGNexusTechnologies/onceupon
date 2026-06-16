@@ -1,6 +1,11 @@
 import { put } from "@vercel/blob";
 
-const blobConfigured = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+// @vercel/blob authenticates with either a static read-write token OR, on a
+// Vercel runtime with a connected store, the injected OIDC token + store id.
+const blobConfigured = Boolean(
+  process.env.BLOB_READ_WRITE_TOKEN ||
+    (process.env.VERCEL_OIDC_TOKEN && process.env.BLOB_STORE_ID)
+);
 
 /**
  * Upload a print-ready PDF to Vercel Blob and return its public URL.
