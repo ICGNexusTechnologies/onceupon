@@ -17,10 +17,20 @@ import { sendShipmentEmail } from "@/lib/email";
  *   https://yourdomain.com/api/gelato-webhook?secret=YOUR_SECRET
  * and set GELATO_WEBHOOK_SECRET to the same value.
  */
-// Gelato pings the URL with a GET when you create/validate the webhook — respond 200
-// so it accepts the endpoint as reachable.
+// Gelato's dashboard validates the URL with browser-side requests, so allow CORS
+// (and a GET/OPTIONS 2xx) or the field shows "invalid" even though it's reachable.
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "*",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS });
+}
+
 export async function GET() {
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true }, { headers: CORS });
 }
 
 export async function POST(req: NextRequest) {
