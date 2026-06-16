@@ -278,6 +278,8 @@ export default function AboutPage() {
               <Link href="/shipping">Shipping</Link>
               <Link href="/contact">Contact</Link>
               <Link href="/privacy">Privacy</Link>
+              <Link href="/refund">Refunds</Link>
+              <Link href="/terms">Terms</Link>
             </div>
           </div>
           <div className="foot-bottom">© 2026 Once Upon. Made with love.</div>
