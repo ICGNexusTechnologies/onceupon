@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Nunito } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import CookieBanner from "@/components/CookieBanner";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Nav />
         {children}
+        <CookieBanner />
       </body>
     </html>
   );
