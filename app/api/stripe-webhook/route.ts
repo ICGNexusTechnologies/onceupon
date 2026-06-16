@@ -7,6 +7,7 @@ import Order from "@/models/Order";
 import GiftCard from "@/models/GiftCard";
 import { getStripe } from "@/lib/stripe";
 import { runArtJob } from "@/lib/artJob";
+import { submitOrderToGelato } from "@/lib/gelato";
 import { sendGiftCardEmail, sendOrderConfirmationEmail } from "@/lib/email";
 import { nextOrderNumber } from "@/lib/orderNumber";
 
@@ -106,15 +107,33 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Only run the art job for new purchases, not format upgrades
+      const physical = cs.metadata?.format === "softcover" || cs.metadata?.format === "hardcover";
+
+      // Only run the art job for new purchases, not format upgrades.
       if (!isUpgrade) {
         // Respond to Stripe immediately; run the heavy art job after the response.
         // (On Vercel, swap this for a real queue — Inngest/QStash — for books at scale.)
+        // runArtJob submits the Gelato order itself once the book is complete.
         after(async () => {
           try {
             await runArtJob(bookId);
           } catch (err) {
             console.error("post-payment art job failed", err);
+          }
+        });
+      } else if (physical && book && orderDoc) {
+        // Already-complete book bought as a printed copy (or a PDF→print upgrade):
+        // the art job won't run, so submit the Gelato order directly here.
+        after(async () => {
+          try {
+            const result = await submitOrderToGelato(book, orderDoc);
+            if (result) {
+              orderDoc.gelatoOrderId = result.gelatoOrderId;
+              orderDoc.status = "printing";
+              await orderDoc.save();
+            }
+          } catch (err) {
+            console.error("gelato submission failed (upgrade)", err);
           }
         });
       }
