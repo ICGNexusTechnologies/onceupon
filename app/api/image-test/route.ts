@@ -5,6 +5,10 @@ import { generateTestImage } from "@/lib/images";
 export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
+  // Dev-only: this hits the paid image API. Never expose it in production.
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not available." }, { status: 404 });
+  }
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
 

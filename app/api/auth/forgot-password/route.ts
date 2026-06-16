@@ -3,9 +3,14 @@ import crypto from "crypto";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    // Prevent reset-email bombing and quota burn: 5 per hour per IP.
+    if (!(await rateLimit(`forgot:${clientIp(req)}`, 5, 3600)).ok) {
+      return NextResponse.json({ ok: true }); // stay silent — don't reveal throttling
+    }
     const { email } = await req.json();
     if (!email) return NextResponse.json({ error: "Email is required." }, { status: 400 });
 

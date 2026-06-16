@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
+import crypto from "crypto";
 import { dbConnect } from "@/lib/db";
 import Order from "@/models/Order";
 import Book from "@/models/Book";
@@ -33,14 +34,26 @@ export async function GET() {
   return NextResponse.json({ ok: true }, { headers: CORS });
 }
 
+/** Constant-time string compare; false if lengths differ. */
+function safeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return ab.length === bb.length && crypto.timingSafeEqual(ab, bb);
+}
+
 export async function POST(req: NextRequest) {
   const secret = process.env.GELATO_WEBHOOK_SECRET;
   if (secret) {
     const provided =
       req.nextUrl.searchParams.get("secret") || req.headers.get("gelato-webhook-secret");
-    if (provided !== secret) {
+    if (!provided || !safeEqual(provided, secret)) {
       return NextResponse.json({ error: "Invalid secret" }, { status: 401 });
     }
+  } else if (process.env.NODE_ENV === "production") {
+    // Fail closed: an unauthenticated webhook in production lets anyone forge
+    // "shipped" updates (and inject a tracking link into a customer email).
+    console.error("GELATO_WEBHOOK_SECRET is not set — rejecting webhook in production.");
+    return NextResponse.json({ error: "Webhook not configured." }, { status: 503 });
   }
 
   let payload: GelatoEvent;

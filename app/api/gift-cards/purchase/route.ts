@@ -3,6 +3,7 @@ import { dbConnect } from "@/lib/db";
 import GiftCard from "@/models/GiftCard";
 import { getStripe, PRICES } from "@/lib/stripe";
 import { generateGiftCardCode } from "@/lib/giftCard";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 const TIERS: Record<string, number> = {
   pdf: 1900,
@@ -11,6 +12,13 @@ const TIERS: Record<string, number> = {
 };
 
 export async function POST(req: Request) {
+  // Unauthenticated endpoint — throttle to stop spam of DB rows / Stripe sessions.
+  if (!(await rateLimit(`giftcard:${clientIp(req)}`, 10, 3600)).ok) {
+    return NextResponse.json(
+      { error: "Too many attempts. Please try again later." },
+      { status: 429 }
+    );
+  }
   const { tier, recipientEmail, recipientName, purchaserEmail, message } = await req.json();
 
   const amountCents = TIERS[tier];

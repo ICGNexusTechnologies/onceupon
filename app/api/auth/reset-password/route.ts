@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
     if (!token || !email || !password) {
       return NextResponse.json({ error: "Invalid reset request." }, { status: 400 });
     }
-    if (password.length < 6) {
-      return NextResponse.json({ error: "Please use a password of at least 6 characters." }, { status: 400 });
+    if (password.length < 8) {
+      return NextResponse.json({ error: "Please use a password of at least 8 characters." }, { status: 400 });
     }
 
     await dbConnect();

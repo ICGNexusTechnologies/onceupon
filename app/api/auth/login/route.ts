@@ -3,9 +3,17 @@ import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import { signToken, setSessionCookie } from "@/lib/auth";
+import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    // Throttle brute-force attempts: 10 per 10 minutes per IP.
+    if (!(await rateLimit(`login:${clientIp(req)}`, 10, 600)).ok) {
+      return NextResponse.json(
+        { error: "Too many attempts. Please wait a few minutes and try again." },
+        { status: 429 }
+      );
+    }
     const { email, password } = await req.json();
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
