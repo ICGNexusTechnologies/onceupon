@@ -30,11 +30,7 @@ export default function PrivacyPage() {
 
       <h3 style={{ color: "var(--plum)", marginTop: 28 }}>Contact</h3>
       <p style={{ color: "var(--ink-soft)" }}>
-        Questions? Email us at orders@onceuponly.com.
-      </p>
-
-      <p style={{ color: "var(--ink-soft)", fontSize: ".85rem", marginTop: 40 }}>
-        This is a starter policy — replace it with a reviewed version before launch.
+        Questions? Email us at customersupport@onceuponly.com.
       </p>
     </div>
   );

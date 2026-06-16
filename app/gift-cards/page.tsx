@@ -173,12 +173,13 @@ export default function GiftCardsPage() {
             </div>
             <div>
               <h4>Help</h4>
-              <a>FAQ</a>
-              <a>Shipping</a>
-              <a>Contact</a>
+              <Link href="/faq">FAQ</Link>
+              <Link href="/shipping">Shipping</Link>
+              <Link href="/contact">Contact</Link>
+              <Link href="/privacy">Privacy</Link>
             </div>
           </div>
-          <div className="foot-bottom">© 2026 Once Upon. Made with love (and a little magic).</div>
+          <div className="foot-bottom">© 2026 Once Upon. Made with love.</div>
         </div>
       </footer>
     </div>
