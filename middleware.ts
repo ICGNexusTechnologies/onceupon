@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const PROTECTED = ["/dashboard", "/create", "/book", "/checkout", "/image-test", "/settings", "/orders"];
+const PROTECTED = ["/dashboard", "/create", "/book", "/checkout", "/image-test", "/settings", "/orders", "/admin"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -31,5 +31,6 @@ export const config = {
     "/image-test/:path*",
     "/settings/:path*",
     "/orders/:path*",
+    "/admin/:path*",
   ],
 };

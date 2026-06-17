@@ -9,7 +9,7 @@ export interface IOrder {
   amountCents: number;
   stripeSessionId: string;
   gelatoOrderId?: string;
-  status: "pending" | "paid" | "printing" | "shipped" | "fulfilled";
+  status: "pending" | "paid" | "printing" | "shipped" | "fulfilled" | "refunded";
   shippingAddress?: Record<string, unknown>;
   carrier?: string;
   trackingCode?: string;
