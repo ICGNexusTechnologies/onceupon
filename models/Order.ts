@@ -15,6 +15,7 @@ export interface IOrder {
   trackingCode?: string;
   trackingUrl?: string;
   shippedAt?: Date;
+  note?: string;
   createdAt: Date;
 }
 
@@ -32,6 +33,7 @@ const OrderSchema = new Schema<IOrder>({
   trackingCode: String,
   trackingUrl: String,
   shippedAt: Date,
+  note: String,
   createdAt: { type: Date, default: Date.now },
 });
 

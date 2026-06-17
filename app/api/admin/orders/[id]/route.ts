@@ -11,14 +11,19 @@ export const maxDuration = 60;
 
 /**
  * POST /api/admin/orders/:id — admin actions on a single order.
- * Body: { action: "resend-confirmation" | "resend-shipment" | "promote-gelato" | "refund" }
+ * Body: { action: "resend-confirmation" | "resend-shipment" | "promote-gelato"
+ *                 | "refund" | "note", amountCents?: number, note?: string }
  */
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const admin = await getAdminSession();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await ctx.params;
-  const { action } = (await req.json()) as { action?: string };
+  const { action, amountCents, note } = (await req.json()) as {
+    action?: string;
+    amountCents?: number;
+    note?: string;
+  };
 
   await dbConnect();
   const order = await Order.findById(id);
@@ -100,10 +105,27 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
           ? session.payment_intent
           : session.payment_intent?.id;
       if (!pi) return NextResponse.json({ error: "No payment intent found for this order" }, { status: 400 });
-      const refund = await stripe.refunds.create({ payment_intent: pi });
-      order.status = "refunded";
+
+      // Optional partial refund: a positive amount under the order total.
+      const partial = typeof amountCents === "number" && amountCents > 0 && amountCents < order.amountCents;
+      const params: { payment_intent: string; amount?: number } = { payment_intent: pi };
+      if (partial) params.amount = Math.round(amountCents!);
+      const refund = await stripe.refunds.create(params);
+
+      if (!partial) order.status = "refunded";
       await order.save();
-      return NextResponse.json({ ok: true, message: `Refund issued (${refund.id})` });
+      return NextResponse.json({
+        ok: true,
+        message: partial
+          ? `Partial refund of $${(amountCents! / 100).toFixed(2)} issued (${refund.id})`
+          : `Full refund issued (${refund.id})`,
+      });
+    }
+
+    if (action === "note") {
+      order.note = (note || "").slice(0, 1000);
+      await order.save();
+      return NextResponse.json({ ok: true, message: "Note saved" });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });

@@ -4,6 +4,7 @@ import Order from "@/models/Order";
 import Book from "@/models/Book";
 import User from "@/models/User";
 import { getAdminSession } from "@/lib/admin";
+import { podCostCents, marginCents } from "@/lib/podCosts";
 
 /** GET /api/admin/orders — all orders joined with book + customer (admin only). */
 export async function GET() {
@@ -41,6 +42,9 @@ export async function GET() {
       childName: b?.child?.name || "",
       format: o.format || "",
       amountCents: o.amountCents || 0,
+      podCostCents: podCostCents(o.format || ""),
+      marginCents: marginCents(o.amountCents || 0, o.format || ""),
+      note: o.note || "",
       status: o.status || "pending",
       stripeSessionId: o.stripeSessionId || "",
       gelatoOrderId: o.gelatoOrderId || "",

@@ -7,6 +7,8 @@ export interface IReview {
   rating: number;
   body: string;
   verified: boolean;
+  hidden: boolean;
+  featured: boolean;
   createdAt: Date;
 }
 
@@ -16,6 +18,8 @@ const ReviewSchema = new Schema<IReview>({
   rating: { type: Number, required: true, min: 1, max: 5 },
   body: { type: String, required: true, maxlength: 1000 },
   verified: { type: Boolean, default: false },
+  hidden: { type: Boolean, default: false },
+  featured: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 

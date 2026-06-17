@@ -3,6 +3,7 @@ import type { IOrder } from "@/models/Order";
 import User from "@/models/User";
 import { buildPrintPdf } from "@/lib/printPdf";
 import { uploadPrintPdf } from "@/lib/blob";
+import { getGelatoOrderType } from "@/lib/settings";
 
 const GELATO_ORDER_URL = "https://order.gelatoapis.com/v4/orders";
 
@@ -105,8 +106,8 @@ export async function submitOrderToGelato(
   const user = await User.findById(order.userId).select("email").lean();
 
   // orderType "draft" lets Gelato validate + hold the order without producing it.
-  // Set GELATO_ORDER_TYPE=order to send straight to production.
-  const orderType = process.env.GELATO_ORDER_TYPE === "order" ? "order" : "draft";
+  // The mode is a runtime setting (admin-toggleable), falling back to GELATO_ORDER_TYPE.
+  const orderType = await getGelatoOrderType();
 
   const payload = {
     orderType,

@@ -6,7 +6,10 @@ import { getSession } from "@/lib/auth";
 
 export async function GET() {
   await dbConnect();
-  const reviews = await Review.find().sort({ createdAt: -1 }).limit(100).lean();
+  const reviews = await Review.find({ hidden: { $ne: true } })
+    .sort({ featured: -1, createdAt: -1 })
+    .limit(100)
+    .lean();
   return NextResponse.json({ reviews });
 }
 
