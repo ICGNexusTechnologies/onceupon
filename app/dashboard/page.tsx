@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useConfirm } from "@/components/useConfirm";
 
 function StarPicker({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   const [hovered, setHovered] = useState(0);
@@ -38,6 +39,7 @@ interface BookCard {
 }
 
 export default function Dashboard() {
+  const { confirm, confirmNode } = useConfirm();
   const [books, setBooks] = useState<BookCard[] | null>(null);
   const [name, setName] = useState("");
   const [deletingId, setDeletingId] = useState("");
@@ -78,7 +80,15 @@ export default function Dashboard() {
   }
 
   async function deleteBook(book: BookCard) {
-    if (!window.confirm(`Delete "${book.title}"? This cannot be undone.`)) return;
+    if (
+      !(await confirm({
+        title: "Delete book",
+        message: `Delete "${book.title}"? This cannot be undone.`,
+        confirmLabel: "Delete",
+        danger: true,
+      }))
+    )
+      return;
 
     setDeletingId(book._id);
     setError("");
@@ -200,6 +210,7 @@ export default function Dashboard() {
           )}
         </div>
       )}
+      {confirmNode}
     </div>
   );
 }

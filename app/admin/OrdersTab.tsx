@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { STATUS_ORDER, money, fmtDate, fmtDateTime } from "./format";
+import { useConfirm } from "@/components/useConfirm";
 
 type AdminOrder = {
   id: string;
@@ -38,6 +39,7 @@ type AdminOrder = {
 const needsAttention = (o: AdminOrder) => o.format !== "pdf" && o.status === "paid" && !o.gelatoOrderId;
 
 export default function OrdersTab({ toast }: { toast: (m: string) => void }) {
+  const { confirm, confirmNode } = useConfirm();
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -106,7 +108,7 @@ export default function OrdersTab({ toast }: { toast: (m: string) => void }) {
 
   const runAction = useCallback(
     async (orderId: string, action: string, extra?: Record<string, unknown>, confirmMsg?: string) => {
-      if (confirmMsg && !window.confirm(confirmMsg)) return;
+      if (confirmMsg && !(await confirm({ message: confirmMsg, danger: true, confirmLabel: "Confirm" }))) return;
       setBusy(true);
       try {
         const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -124,7 +126,7 @@ export default function OrdersTab({ toast }: { toast: (m: string) => void }) {
         setBusy(false);
       }
     },
-    [load, toast]
+    [load, toast, confirm]
   );
 
   const sortArrow = (key: keyof AdminOrder) => (key === sortKey ? (sortDir === 1 ? "▲" : "▼") : "↕");
@@ -217,6 +219,7 @@ export default function OrdersTab({ toast }: { toast: (m: string) => void }) {
       <aside className={`drawer ${selected ? "open" : ""}`} aria-hidden={!selected}>
         {selected && <OrderDetail o={selected} busy={busy} onClose={() => setSelectedId(null)} runAction={runAction} />}
       </aside>
+      {confirmNode}
     </div>
   );
 }

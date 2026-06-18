@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { fmtDate } from "./format";
+import { useConfirm } from "@/components/useConfirm";
 
 type Review = {
   id: string;
@@ -17,6 +18,7 @@ type Review = {
 const stars = (n: number) => "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(0, 5 - n);
 
 export default function ReviewsTab({ toast }: { toast: (m: string) => void }) {
+  const { confirm, confirmNode } = useConfirm();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -39,7 +41,7 @@ export default function ReviewsTab({ toast }: { toast: (m: string) => void }) {
   }, [load]);
 
   async function moderate(id: string, action: string, confirmMsg?: string) {
-    if (confirmMsg && !window.confirm(confirmMsg)) return;
+    if (confirmMsg && !(await confirm({ message: confirmMsg, danger: true, confirmLabel: "Delete" }))) return;
     setBusy(true);
     try {
       const res = await fetch("/api/admin/reviews", {
@@ -108,6 +110,7 @@ export default function ReviewsTab({ toast }: { toast: (m: string) => void }) {
           <p style={{ marginTop: 10, color: "var(--soft)" }}>{r.body}</p>
         </div>
       ))}
+      {confirmNode}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MfaSection from "./MfaSection";
+import { useConfirm } from "@/components/useConfirm";
 
 interface OrderRow {
   bookId: string;
@@ -32,6 +33,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { confirm, confirmNode } = useConfirm();
   const [loaded, setLoaded] = useState(false);
 
   // profile
@@ -128,7 +130,15 @@ export default function SettingsPage() {
 
   async function deleteAccount() {
     setDelErr("");
-    if (!window.confirm("Permanently delete your account, books, and orders? This cannot be undone.")) return;
+    if (
+      !(await confirm({
+        title: "Delete account",
+        message: "Permanently delete your account, books, and orders? This cannot be undone.",
+        confirmLabel: "Delete account",
+        danger: true,
+      }))
+    )
+      return;
     setDelBusy(true);
     try {
       const res = await fetch("/api/auth/delete-account", {
@@ -280,6 +290,7 @@ export default function SettingsPage() {
         </button>
         {delErr && <p style={{ color: "#c4452f", fontWeight: 700, marginTop: 10 }}>{delErr}</p>}
       </div>
+      {confirmNode}
     </div>
   );
 }

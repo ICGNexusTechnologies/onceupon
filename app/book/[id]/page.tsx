@@ -3,6 +3,7 @@
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Scene from "@/components/Scene";
+import { useConfirm } from "@/components/useConfirm";
 
 interface Page {
   pageNumber: number;
@@ -35,6 +36,7 @@ const FORMATS = [
 
 export default function BookReader({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const { confirm, confirmNode } = useConfirm();
   const [book, setBook] = useState<BookData | null>(null);
   const [err, setErr] = useState("");
   const [i, setI] = useState(0);
@@ -143,9 +145,11 @@ export default function BookReader({ params }: { params: Promise<{ id: string }>
   }
 
   async function generateArt() {
-    const confirmed = window.confirm(
-      "Generate the hero reference and all 40 page illustrations now? This uses fal.ai credits."
-    );
+    const confirmed = await confirm({
+      title: "Generate illustrations",
+      message: "Generate the hero reference and all 40 page illustrations now? This uses fal.ai credits.",
+      confirmLabel: "Generate",
+    });
     if (!confirmed) return;
 
     setArtBusy(true);
@@ -188,9 +192,11 @@ export default function BookReader({ params }: { params: Promise<{ id: string }>
   async function regeneratePage() {
     const page = book?.pages[i];
     if (!page) return;
-    const confirmed = window.confirm(
-      `Regenerate page ${page.pageNumber}'s illustration? This uses one fal.ai image generation.`
-    );
+    const confirmed = await confirm({
+      title: "Regenerate page",
+      message: `Regenerate page ${page.pageNumber}'s illustration? This uses one fal.ai image generation.`,
+      confirmLabel: "Regenerate",
+    });
     if (!confirmed) return;
 
     setPageBusy(true);
@@ -434,6 +440,7 @@ export default function BookReader({ params }: { params: Promise<{ id: string }>
           )}
         </div>
       </div>
+      {confirmNode}
     </div>
   );
 }
