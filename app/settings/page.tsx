@@ -49,6 +49,11 @@ export default function SettingsPage() {
   const [pwErr, setPwErr] = useState("");
   const [pwBusy, setPwBusy] = useState(false);
 
+  // delete account
+  const [delPassword, setDelPassword] = useState("");
+  const [delErr, setDelErr] = useState("");
+  const [delBusy, setDelBusy] = useState(false);
+
   // orders
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
 
@@ -121,6 +126,27 @@ export default function SettingsPage() {
     }
   }
 
+  async function deleteAccount() {
+    setDelErr("");
+    if (!window.confirm("Permanently delete your account, books, and orders? This cannot be undone.")) return;
+    setDelBusy(true);
+    try {
+      const res = await fetch("/api/auth/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: delPassword }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error);
+      router.push("/");
+      router.refresh();
+    } catch (e) {
+      setDelErr(e instanceof Error ? e.message : "Couldn't delete account.");
+    } finally {
+      setDelBusy(false);
+    }
+  }
+
   if (!loaded) {
     return (
       <div className="loading fade-in">
@@ -131,7 +157,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="wrap" style={{ maxWidth: 640, padding: "56px 28px 80px" }}>
+    <div className="wrap settings-page" style={{ maxWidth: 640, padding: "56px 28px 80px" }}>
       <h1 className="display-l" style={{ color: "var(--plum)", marginBottom: 28 }}>
         Account settings
       </h1>
@@ -231,6 +257,28 @@ export default function SettingsPage() {
             </Link>
           ))
         )}
+      </div>
+
+      {/* Danger zone */}
+      <div className="buy-card" style={{ marginTop: 24, border: "1px solid rgba(196,69,47,.3)" }}>
+        <h3 style={{ marginTop: 0, color: "#c4452f" }}>Delete account</h3>
+        <p style={{ color: "var(--ink-soft)", marginBottom: 14 }}>
+          Permanently delete your account, your books, and your order history. This can&rsquo;t be undone. Enter your
+          password to confirm.
+        </p>
+        <div className="field">
+          <label>Password</label>
+          <input type="password" value={delPassword} onChange={(e) => setDelPassword(e.target.value)} placeholder="••••••••" />
+        </div>
+        <button
+          className="btn"
+          onClick={deleteAccount}
+          disabled={delBusy || !delPassword}
+          style={{ background: "#c4452f", color: "#fff" }}
+        >
+          {delBusy ? "Deleting…" : "Delete my account"}
+        </button>
+        {delErr && <p style={{ color: "#c4452f", fontWeight: 700, marginTop: 10 }}>{delErr}</p>}
       </div>
     </div>
   );

@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function AuthForm() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const router = useRouter();
+  const params = useSearchParams();
+  const [mode, setMode] = useState<"signin" | "signup">(params.get("mode") === "signup" ? "signup" : "signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
@@ -13,8 +15,8 @@ function AuthForm() {
   const [busy, setBusy] = useState(false);
   const [mfaToken, setMfaToken] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState("");
-  const router = useRouter();
-  const params = useSearchParams();
+  const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
+  const [resendMsg, setResendMsg] = useState("");
 
   async function submit() {
     setErr("");
@@ -38,6 +40,10 @@ function AuthForm() {
         setMfaToken(data.mfaToken);
         return;
       }
+      if (mode === "signup") {
+        setSignedUpEmail(email);
+        return;
+      }
       router.push(params.get("next") || "/dashboard");
       router.refresh();
     } catch {
@@ -45,6 +51,45 @@ function AuthForm() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function resendVerify() {
+    setResendMsg("");
+    try {
+      const res = await fetch("/api/auth/resend-verification", { method: "POST" });
+      const d = await res.json();
+      setResendMsg(res.ok ? "Sent! Check your inbox." : d.error || "Couldn't send.");
+    } catch {
+      setResendMsg("Couldn't send. Try again.");
+    }
+  }
+
+  if (signedUpEmail) {
+    return (
+      <div className="center-wrap fade-in" style={{ maxWidth: 460 }}>
+        <div className="card" style={{ textAlign: "center" }}>
+          <h1 style={{ fontSize: "1.7rem", marginBottom: 8 }}>Verify your email ✉️</h1>
+          <p className="wiz-sub" style={{ marginBottom: 20 }}>
+            We sent a verification link to <b>{signedUpEmail}</b>. Click it to confirm your email — you&rsquo;ll need
+            it before you can place an order.
+          </p>
+          <Link
+            href="/dashboard"
+            className="go"
+            style={{ display: "inline-block", textDecoration: "none", marginBottom: 16 }}
+          >
+            Continue to my books →
+          </Link>
+          <p style={{ color: "var(--ink-soft)", fontSize: ".86rem" }}>
+            Didn&rsquo;t get it?{" "}
+            <b style={{ color: "var(--coral)", cursor: "pointer" }} onClick={resendVerify}>
+              Resend email
+            </b>
+            {resendMsg && <span style={{ display: "block", marginTop: 8, fontWeight: 600 }}>{resendMsg}</span>}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   async function verifyMfa() {

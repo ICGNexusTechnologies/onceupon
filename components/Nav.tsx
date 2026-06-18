@@ -75,6 +75,7 @@ export default function Nav() {
             ) : (
               <>
                 <Link href="/auth" onClick={closeMenu}>Sign in</Link>
+                <Link href="/auth?mode=signup" onClick={closeMenu}>Sign up</Link>
                 <Link href="/create" className="btn btn-primary" onClick={closeMenu}>
                   Make a book
                 </Link>
