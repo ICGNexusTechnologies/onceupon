@@ -172,6 +172,21 @@ function AuthForm() {
         <p className="wiz-sub" style={{ marginBottom: 24 }}>
           {mode === "signup" ? "Save your books and track your orders." : "Sign in to your books and orders."}
         </p>
+        {params.get("timeout") === "1" && (
+          <p
+            style={{
+              background: "#FFF1ED",
+              color: "#3A2A5C",
+              borderRadius: 12,
+              padding: "10px 14px",
+              fontSize: ".88rem",
+              fontWeight: 700,
+              marginBottom: 16,
+            }}
+          >
+            You were signed out of the admin for inactivity. Please sign in again.
+          </p>
+        )}
         {mode === "signup" && (
           <div className="field">
             <label>Your name</label>

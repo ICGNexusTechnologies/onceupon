@@ -8,6 +8,7 @@ import GiftCardsTab from "./GiftCardsTab";
 import ReviewsTab from "./ReviewsTab";
 import BooksTab from "./BooksTab";
 import TeamTab from "./TeamTab";
+import AdminIdleTimeout from "./AdminIdleTimeout";
 
 const BASE_TABS = [
   { key: "overview", label: "Overview" },
@@ -30,6 +31,7 @@ export default function AdminApp({ isSuper }: { isSuper: boolean }) {
 
   return (
     <div className="admin">
+      <AdminIdleTimeout />
       <header className="topbar">
         <div className="topbar-inner">
           <div className="brand">
