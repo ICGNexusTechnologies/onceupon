@@ -92,20 +92,20 @@ export default async function Home() {
 
       <Showcase books={books} />
 
-      <section className="band">
-        <div className="wrap">
-          <div className="quote">
-            <div className="mark">&quot;</div>
-            <blockquote>
-              {featuredReview ? featuredReview.body : "My daughter gasped when she saw herself on the cover."}
-            </blockquote>
-            <cite>
-              — {featuredReview ? featuredReview.userName : "Jenna R., mom of 2"}
-              {featuredReview?.verified && " · Verified Purchase"}
-            </cite>
+      {featuredReview && (
+        <section className="band">
+          <div className="wrap">
+            <div className="quote">
+              <div className="mark">&quot;</div>
+              <blockquote>{featuredReview.body}</blockquote>
+              <cite>
+                — {featuredReview.userName}
+                {featuredReview.verified && " · Verified Purchase"}
+              </cite>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="band" id="prices" style={{ background: "var(--paper-2)" }}>
         <div className="wrap">
