@@ -7,20 +7,20 @@ import CustomersTab from "./CustomersTab";
 import GiftCardsTab from "./GiftCardsTab";
 import ReviewsTab from "./ReviewsTab";
 import BooksTab from "./BooksTab";
+import TeamTab from "./TeamTab";
 
-const TABS = [
+const BASE_TABS = [
   { key: "overview", label: "Overview" },
   { key: "orders", label: "Orders" },
   { key: "customers", label: "Customers" },
   { key: "giftcards", label: "Gift cards" },
   { key: "reviews", label: "Reviews" },
   { key: "books", label: "Books" },
-] as const;
+];
 
-type TabKey = (typeof TABS)[number]["key"];
-
-export default function AdminApp() {
-  const [tab, setTab] = useState<TabKey>("overview");
+export default function AdminApp({ isSuper }: { isSuper: boolean }) {
+  const TABS = isSuper ? [...BASE_TABS, { key: "team", label: "Team" }] : BASE_TABS;
+  const [tab, setTab] = useState("overview");
   const [toastMsg, setToastMsg] = useState("");
 
   const toast = useCallback((msg: string) => {
@@ -63,6 +63,7 @@ export default function AdminApp() {
         {tab === "giftcards" && <GiftCardsTab toast={toast} />}
         {tab === "reviews" && <ReviewsTab toast={toast} />}
         {tab === "books" && <BooksTab />}
+        {tab === "team" && isSuper && <TeamTab toast={toast} />}
       </div>
 
       <div className={`toast ${toastMsg ? "show" : ""}`}>{toastMsg}</div>

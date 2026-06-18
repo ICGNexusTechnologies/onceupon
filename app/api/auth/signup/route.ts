@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import { signToken, setSessionCookie } from "@/lib/auth";
+import { issueVerification } from "@/lib/verifyEmail";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
@@ -32,7 +33,10 @@ export async function POST(req: NextRequest) {
       email: normalized,
       name: (name || normalized.split("@")[0]).trim(),
       passwordHash,
+      emailVerified: false,
     });
+    // Send the verification email (non-fatal if it fails).
+    await issueVerification(user);
     const token = await signToken({ userId: user._id.toString(), email: user.email, name: user.name });
     await setSessionCookie(token);
     return NextResponse.json({ user: { id: user._id, email: user.email, name: user.name } });

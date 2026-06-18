@@ -11,6 +11,10 @@ export interface IUser {
   totpSecret?: string; // encrypted (AES-256-GCM)
   totpPending?: string; // encrypted, during setup before confirmation
   mfaBackupCodes?: string[]; // bcrypt hashes; consumed on use
+  emailVerified?: boolean;
+  verifyTokenHash?: string;
+  verifyTokenExpires?: Date;
+  isAdmin?: boolean; // DB-granted admin (super-admins come from ADMIN_EMAILS)
   createdAt: Date;
 }
 
@@ -24,6 +28,10 @@ const UserSchema = new Schema<IUser>({
   totpSecret: String,
   totpPending: String,
   mfaBackupCodes: [String],
+  emailVerified: { type: Boolean, default: false },
+  verifyTokenHash: String,
+  verifyTokenExpires: Date,
+  isAdmin: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 

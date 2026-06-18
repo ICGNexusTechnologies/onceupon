@@ -3,6 +3,7 @@ import { Fraunces, Nunito } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import CookieBanner from "@/components/CookieBanner";
+import VerifyBanner from "@/components/VerifyBanner";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${fraunces.variable} ${nunito.variable}`}>
       <body>
         <Nav />
+        <VerifyBanner />
         {children}
         <CookieBanner />
       </body>

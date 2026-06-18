@@ -14,8 +14,12 @@ export default function MfaSection() {
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [required, setRequired] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setRequired(new URLSearchParams(window.location.search).get("mfa") === "required");
+    }
     fetch("/api/auth/mfa/status")
       .then((r) => (r.ok ? r.json() : { mfaEnabled: false }))
       .then((d) => {
@@ -87,7 +91,15 @@ export default function MfaSection() {
   if (!loaded) return null;
 
   return (
-    <div className="buy-card" style={{ marginBottom: 24 }}>
+    <div
+      className="buy-card"
+      style={{ marginBottom: 24, ...(required && !enabled ? { border: "2px solid var(--coral)" } : {}) }}
+    >
+      {required && !enabled && (
+        <p style={{ color: "#c4452f", fontWeight: 800, marginTop: 0, marginBottom: 12 }}>
+          🔒 Admin accounts must enable two-factor authentication before opening the dashboard. Set it up below.
+        </p>
+      )}
       <h3 style={{ marginTop: 0, color: "var(--plum)" }}>
         Two-factor authentication{" "}
         {enabled && step !== "backup" && (

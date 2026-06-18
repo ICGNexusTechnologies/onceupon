@@ -82,6 +82,37 @@ export async function sendPasswordResetEmail({
   });
 }
 
+export async function sendVerificationEmail({
+  to,
+  name,
+  verifyUrl,
+}: {
+  to: string;
+  name?: string;
+  verifyUrl: string;
+}) {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping verification email to", to);
+    return;
+  }
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: "Verify your email — Once Upon",
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:36px 24px;background:#FBF4E6;border-radius:16px">
+        <h1 style="color:#3A2A5C;font-size:1.6rem;margin:0 0 8px">Confirm your email ✨</h1>
+        <p style="color:#5A4E6E;margin:0 0 24px">${name ? `Hi ${name}, ` : ""}thanks for joining Once Upon! Please confirm your email so we can send your order and shipping updates. This link expires in 24 hours.</p>
+        <a href="${verifyUrl}" style="display:inline-block;background:#E0654E;color:#fff;padding:14px 28px;border-radius:999px;font-weight:700;text-decoration:none">Verify my email →</a>
+        <p style="color:#5A4E6E;font-size:.88rem;margin-top:24px">If you didn't create an account, you can safely ignore this email.</p>
+        <p style="color:#9B92B3;font-size:.8rem;margin-top:28px">Once Upon · Personalized storybooks for every child</p>
+      </div>
+    `,
+  });
+}
+
 export async function sendShipmentEmail({
   to,
   bookId,

@@ -4,6 +4,7 @@ import { dbConnect } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import Book from "@/models/Book";
 import Order from "@/models/Order";
+import User from "@/models/User";
 import { getStripe, PRICES } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
@@ -19,6 +20,16 @@ export async function POST(req: NextRequest) {
     }
 
     await dbConnect();
+
+    // Require a verified email before any purchase (so order/shipping emails reach a real inbox).
+    const buyer = await User.findById(session.userId).select("emailVerified").lean();
+    if (buyer && buyer.emailVerified === false) {
+      return NextResponse.json(
+        { error: "Please verify your email before checking out — check your inbox for the verification link.", code: "EMAIL_UNVERIFIED" },
+        { status: 403 }
+      );
+    }
+
     const book = await Book.findOne({ _id: bookId, userId: session.userId });
     if (!book) return NextResponse.json({ error: "Book not found." }, { status: 404 });
 
