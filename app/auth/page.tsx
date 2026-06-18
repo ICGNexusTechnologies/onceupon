@@ -11,6 +11,8 @@ function AuthForm() {
   const [pass, setPass] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
   const router = useRouter();
   const params = useSearchParams();
 
@@ -32,6 +34,10 @@ function AuthForm() {
         setErr(data.error || "Something went wrong. Please try again.");
         return;
       }
+      if (data.mfaRequired) {
+        setMfaToken(data.mfaToken);
+        return;
+      }
       router.push(params.get("next") || "/dashboard");
       router.refresh();
     } catch {
@@ -39,6 +45,69 @@ function AuthForm() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function verifyMfa() {
+    setErr("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/auth/mfa/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mfaToken, code: mfaCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErr(data.error || "Invalid code.");
+        return;
+      }
+      router.push(params.get("next") || "/dashboard");
+      router.refresh();
+    } catch {
+      setErr("Something went wrong. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (mfaToken) {
+    return (
+      <div className="center-wrap fade-in" style={{ maxWidth: 460 }}>
+        <div className="card">
+          <h1 style={{ fontSize: "1.7rem", marginBottom: 6 }}>Two-factor verification</h1>
+          <p className="wiz-sub" style={{ marginBottom: 24 }}>
+            Enter the 6-digit code from your authenticator app (or a backup code).
+          </p>
+          <div className="field">
+            <label>Authentication code</label>
+            <input
+              inputMode="numeric"
+              autoFocus
+              value={mfaCode}
+              onChange={(e) => setMfaCode(e.target.value)}
+              placeholder="123456"
+              onKeyDown={(e) => e.key === "Enter" && verifyMfa()}
+            />
+          </div>
+          <button className="go" onClick={verifyMfa} disabled={busy || !mfaCode}>
+            {busy ? "Verifying…" : "Verify →"}
+          </button>
+          <div className="err">{err}</div>
+          <p style={{ textAlign: "center", color: "var(--ink-soft)", fontSize: ".86rem", marginTop: 16 }}>
+            <b
+              style={{ color: "var(--coral)", cursor: "pointer" }}
+              onClick={() => {
+                setMfaToken(null);
+                setMfaCode("");
+                setErr("");
+              }}
+            >
+              ← Back to sign in
+            </b>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

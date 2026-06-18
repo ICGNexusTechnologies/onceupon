@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import MfaSection from "./MfaSection";
 
 interface OrderRow {
   bookId: string;
@@ -174,6 +175,9 @@ export default function SettingsPage() {
         {pwMsg && <span style={{ color: "var(--leaf)", fontWeight: 700, marginLeft: 12 }}>{pwMsg}</span>}
         {pwErr && <p style={{ color: "#c4452f", fontWeight: 700, marginTop: 10 }}>{pwErr}</p>}
       </div>
+
+      {/* Two-factor authentication */}
+      <MfaSection />
 
       {/* Orders */}
       <div className="buy-card">

@@ -7,6 +7,10 @@ export interface IUser {
   passwordHash: string;
   resetTokenHash?: string;
   resetTokenExpires?: Date;
+  mfaEnabled?: boolean;
+  totpSecret?: string; // encrypted (AES-256-GCM)
+  totpPending?: string; // encrypted, during setup before confirmation
+  mfaBackupCodes?: string[]; // bcrypt hashes; consumed on use
   createdAt: Date;
 }
 
@@ -16,6 +20,10 @@ const UserSchema = new Schema<IUser>({
   passwordHash: String,
   resetTokenHash: String,
   resetTokenExpires: Date,
+  mfaEnabled: { type: Boolean, default: false },
+  totpSecret: String,
+  totpPending: String,
+  mfaBackupCodes: [String],
   createdAt: { type: Date, default: Date.now },
 });
 
