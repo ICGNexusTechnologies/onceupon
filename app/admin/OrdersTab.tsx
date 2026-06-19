@@ -146,7 +146,7 @@ export default function OrdersTab({ toast }: { toast: (m: string) => void }) {
         </div>
         <select className="filter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">All statuses</option>
-          {["pending", "paid", "printing", "shipped", "fulfilled", "refunded"].map((s) => (
+          {["pending", "paid", "printing", "shipped", "fulfilled", "refunded", "canceled"].map((s) => (
             <option key={s} value={s}>
               {s[0].toUpperCase() + s.slice(1)}
             </option>
@@ -438,6 +438,21 @@ function OrderDetail({
               }}
             >
               ↩ Issue refund
+            </button>
+            <button
+              className="btn btn-danger full"
+              style={{ marginTop: 10 }}
+              disabled={busy || o.status === "shipped" || o.status === "fulfilled" || o.status === "canceled"}
+              onClick={() =>
+                runAction(
+                  o.id,
+                  "cancel-order",
+                  {},
+                  `Cancel ${o.orderNumber}? This stops Gelato production and marks it canceled. (Refund the customer separately if needed.)`
+                )
+              }
+            >
+              ✕ Cancel order
             </button>
           </div>
         </div>

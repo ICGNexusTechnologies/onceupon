@@ -369,6 +369,7 @@ export default function AdminApp({ isSuper }: { isSuper: boolean }) {
         .admin .badge.shipped { background: #dff1f1; color: #2c7d7d; }
         .admin .badge.fulfilled { background: #e3f3e8; color: #3c7d53; }
         .admin .badge.refunded { background: #f3e3e3; color: #b04a4a; }
+        .admin .badge.canceled { background: #efeef3; color: #8a8398; }
         .admin .badge.active { background: #e3f3e8; color: #3c7d53; }
         .admin .badge.redeemed { background: #efeef3; color: #6b6480; }
         .admin .badge.complete { background: #e3f3e8; color: #3c7d53; }

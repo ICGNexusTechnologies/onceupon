@@ -71,6 +71,25 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       return NextResponse.json({ ok: true, message: "Shipment email re-sent" });
     }
 
+    if (action === "cancel-order") {
+      let gelatoNote = "";
+      if (order.gelatoOrderId) {
+        const apiKey = process.env.GELATO_API_KEY;
+        if (apiKey) {
+          const res = await fetch(`https://order.gelatoapis.com/v4/orders/${order.gelatoOrderId}/cancel`, {
+            method: "POST",
+            headers: { "X-API-KEY": apiKey },
+          });
+          if (!res.ok) {
+            gelatoNote = " (couldn't cancel on Gelato — it may have shipped or already be canceled; check the Gelato dashboard)";
+          }
+        }
+      }
+      order.status = "canceled";
+      await order.save();
+      return NextResponse.json({ ok: true, message: "Order canceled" + gelatoNote });
+    }
+
     if (action === "reset-fulfillment") {
       order.gelatoOrderId = undefined;
       if (order.status === "printing") order.status = "paid";
