@@ -71,6 +71,13 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       return NextResponse.json({ ok: true, message: "Shipment email re-sent" });
     }
 
+    if (action === "reset-fulfillment") {
+      order.gelatoOrderId = undefined;
+      if (order.status === "printing") order.status = "paid";
+      await order.save();
+      return NextResponse.json({ ok: true, message: "Fulfillment reset — you can submit to Gelato again." });
+    }
+
     if (action === "submit-gelato") {
       if (order.gelatoOrderId) return NextResponse.json({ error: "Already submitted to Gelato." }, { status: 400 });
       if (order.format === "pdf") return NextResponse.json({ error: "Digital order — nothing to print." }, { status: 400 });

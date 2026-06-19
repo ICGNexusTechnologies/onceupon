@@ -401,6 +401,20 @@ function OrderDetail({
             <button className="btn btn-primary" disabled={busy} onClick={() => window.open(`/api/admin/orders/${o.id}/print-pdf`, "_blank")}>
               📄 View PDF
             </button>
+            <button
+              className="btn btn-ghost full"
+              disabled={busy || isPdf || !o.gelatoOrderId || o.status === "shipped" || o.status === "fulfilled"}
+              onClick={() =>
+                runAction(
+                  o.id,
+                  "reset-fulfillment",
+                  {},
+                  `Reset ${o.orderNumber}'s fulfillment? This clears the current Gelato order so you can re-submit it.`
+                )
+              }
+            >
+              ↺ Reset fulfillment (retry)
+            </button>
           </div>
           <div style={{ marginTop: 12 }}>
             <div className="field">
