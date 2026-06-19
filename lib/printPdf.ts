@@ -133,6 +133,22 @@ function addPrintPage(pdf: PDFDocument): Page {
   return page;
 }
 
+// Glued softcover cover wrap (front + spine + back as one wide page), per Gelato's
+// cover-dimensions spec: 416.21 x 285.4mm total, 3mm bleed.
+const COVER_W = mm(416.21);
+const COVER_H = mm(285.4);
+const COVER_BLEED = mm(3);
+const SPINE_L = mm(206.2); // back | spine boundary
+const SPINE_R = mm(210.01); // spine | front boundary
+const BACK_L = mm(3);
+
+function addCoverWrapPage(pdf: PDFDocument): Page {
+  const page = pdf.addPage([COVER_W, COVER_H]);
+  page.setBleedBox(0, 0, COVER_W, COVER_H);
+  page.setTrimBox(COVER_BLEED, COVER_BLEED, COVER_W - COVER_BLEED * 2, COVER_H - COVER_BLEED * 2);
+  return page;
+}
+
 /** Turn the document into a PDF/X-4 file with the GRACoL 2006 output intent. */
 function applyPdfX4(pdf: PDFDocument, title: string) {
   const ctx = pdf.context;
@@ -204,15 +220,29 @@ export async function buildPrintPdf(
 
   const fill = (page: Page, color = CREAM) => page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color });
 
-  // FRONT COVER
-  const front = addPrintPage(pdf);
+  // COVER WRAP (page 1): back cover (left) + spine + front cover (right).
+  const wrap = addCoverWrapPage(pdf);
+  wrap.drawRectangle({ x: 0, y: 0, width: COVER_W, height: COVER_H, color: PLUM });
   if (book.coverUrl) {
     const cover = await embedPrintImage(pdf, book.coverUrl, imgTransform);
-    drawImageFill(front, cover, 0, 0, PAGE_W, PAGE_H);
-  } else {
-    fill(front, PLUM);
-    drawCenteredLines(front, cx, wrapText(book.title, titleFont, 36, PAGE_W - SAFE * 2), titleFont, 36, 42, PAGE_H * 0.55, CREAM);
+    // Front cover fills the right panel (spine edge -> right page edge, incl. bleed).
+    drawImageFill(wrap, cover, SPINE_R, 0, COVER_W - SPINE_R, COVER_H);
   }
+  // Back cover text in the left panel.
+  const backCx = (BACK_L + SPINE_L) / 2;
+  const backW = SPINE_L - BACK_L - mm(12);
+  drawCenteredLines(wrap, backCx, ["ONCE UPON"], labelFont, 14, 18, COVER_H - mm(16), MARIGOLD);
+  drawCenteredLines(wrap, backCx, wrapText(book.title, titleFont, 20, backW), titleFont, 20, 26, COVER_H * 0.56, CREAM);
+  drawCenteredLines(
+    wrap,
+    backCx,
+    wrapText(`A personalized storybook for ${safePdfText(book.child.name)}.`, italicFont, 12, backW),
+    italicFont,
+    12,
+    16,
+    COVER_H * 0.4,
+    CREAM
+  );
 
   // TITLE PAGE
   const titlePage = addPrintPage(pdf);
@@ -282,33 +312,18 @@ export async function buildPrintPdf(
   // 3 cover pages. So we pad the interior with blanks (kept BEFORE the back
   // cover) until (filePages - 3) is an even number >= 28, then declare
   // pageCount = filePages - 3.  (file = declared + 3, which is what Gelato checks.)
+  // Pad interior blanks so (filePages - 3) is a valid even count >= 28. The wrap
+  // is page 1; declared pageCount = filePages - 3 (file = declared + 3), the
+  // relationship Gelato accepted on the previous attempt.
   const GELATO_COVER_PAGES = 3;
   const MIN_INTERIOR = 28;
-  // getPageCount() here = front cover + interior so far; the back cover is +1 below.
-  const declaredAfterBack = () => pdf.getPageCount() + 1 - GELATO_COVER_PAGES;
-  while (declaredAfterBack() < MIN_INTERIOR || declaredAfterBack() % 2 !== 0) {
-    fill(addPrintPage(pdf)); // blank cream page, before the back cover
+  const declaredCount = () => pdf.getPageCount() - GELATO_COVER_PAGES;
+  while (declaredCount() < MIN_INTERIOR || declaredCount() % 2 !== 0) {
+    fill(addPrintPage(pdf));
   }
-
-  // BACK COVER (kept last)
-  const back = addPrintPage(pdf);
-  fill(back, PLUM);
-  drawCenteredLines(back, cx, ["ONCE UPON"], labelFont, 14, 18, PAGE_H - SAFE - mm(8), MARIGOLD);
-  drawCenteredLines(back, cx, wrapText(book.title, titleFont, 22, PAGE_W - SAFE * 2), titleFont, 22, 28, PAGE_H * 0.55, CREAM);
-  drawCenteredLines(
-    back,
-    cx,
-    wrapText(`A personalized storybook for ${safePdfText(book.child.name)}.`, italicFont, 13, PAGE_W - SAFE * 2.5),
-    italicFont,
-    13,
-    18,
-    PAGE_H * 0.4,
-    CREAM
-  );
 
   applyPdfX4(pdf, safePdfText(book.title));
 
-  // Declared interior page count (file total minus the 3 cover pages).
   const pageCount = pdf.getPageCount() - GELATO_COVER_PAGES;
   const buf = Buffer.from(await pdf.save({ useObjectStreams: false }));
   // pdf-lib always writes a 1.7 header; PDF/X-4 is defined on PDF 1.6. Same byte
