@@ -376,6 +376,15 @@ function OrderDetail({
               📦 Resend shipment
             </button>
             <button
+              className="btn btn-ghost"
+              disabled={busy || isPdf || !!o.gelatoOrderId}
+              onClick={() =>
+                runAction(o.id, "submit-gelato", {}, `Submit ${o.orderNumber} to Gelato? Builds the print file and creates the order/draft.`)
+              }
+            >
+              🖨 Submit to Gelato
+            </button>
+            <button
               className="btn btn-gold"
               disabled={busy || isPdf || !o.gelatoOrderId}
               onClick={() =>

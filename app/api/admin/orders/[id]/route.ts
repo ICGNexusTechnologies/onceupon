@@ -5,6 +5,7 @@ import Book from "@/models/Book";
 import User from "@/models/User";
 import { getAdminSession } from "@/lib/admin";
 import { getStripe } from "@/lib/stripe";
+import { submitOrderToGelato } from "@/lib/gelato";
 import { sendOrderConfirmationEmail, sendShipmentEmail } from "@/lib/email";
 
 export const maxDuration = 60;
@@ -68,6 +69,24 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         trackingUrl: order.trackingUrl,
       });
       return NextResponse.json({ ok: true, message: "Shipment email re-sent" });
+    }
+
+    if (action === "submit-gelato") {
+      if (order.gelatoOrderId) return NextResponse.json({ error: "Already submitted to Gelato." }, { status: 400 });
+      if (order.format === "pdf") return NextResponse.json({ error: "Digital order — nothing to print." }, { status: 400 });
+      const book = await Book.findById(order.bookId);
+      if (!book) return NextResponse.json({ error: "Book not found." }, { status: 404 });
+      const result = await submitOrderToGelato(book, order);
+      if (!result) {
+        return NextResponse.json(
+          { error: "Gelato returned nothing — check GELATO_ENABLED and that the book is fully illustrated." },
+          { status: 502 }
+        );
+      }
+      order.gelatoOrderId = result.gelatoOrderId;
+      order.status = "printing";
+      await order.save();
+      return NextResponse.json({ ok: true, message: "Submitted to Gelato" });
     }
 
     if (action === "promote-gelato") {
