@@ -386,12 +386,17 @@ function OrderDetail({
             </button>
             <button
               className="btn btn-gold"
-              disabled={busy || isPdf || !o.gelatoOrderId}
+              disabled={busy || isPdf || !o.gelatoOrderId || o.status !== "printing"}
               onClick={() =>
-                runAction(o.id, "promote-gelato", {}, `Promote ${o.orderNumber} to PRODUCTION? This prints it and charges your Gelato account.`)
+                runAction(
+                  o.id,
+                  "promote-gelato",
+                  {},
+                  `Approve ${o.orderNumber} and send it to print? Gelato will print, charge your account, and ship it.`
+                )
               }
             >
-              🏭 Promote draft
+              ✅ Approve &amp; print
             </button>
             <button className="btn btn-primary" disabled={busy} onClick={() => window.open(`/api/admin/orders/${o.id}/print-pdf`, "_blank")}>
               📄 View PDF
