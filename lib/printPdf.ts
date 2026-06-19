@@ -277,7 +277,20 @@ export async function buildPrintPdf(
     PAGE_H * 0.45
   );
 
-  // BACK COVER
+  // Gelato (glued softcover photobook) accepts an EVEN interior page count
+  // (28–200) and expects the uploaded file to contain that interior count PLUS
+  // 3 cover pages. So we pad the interior with blanks (kept BEFORE the back
+  // cover) until (filePages - 3) is an even number >= 28, then declare
+  // pageCount = filePages - 3.  (file = declared + 3, which is what Gelato checks.)
+  const GELATO_COVER_PAGES = 3;
+  const MIN_INTERIOR = 28;
+  // getPageCount() here = front cover + interior so far; the back cover is +1 below.
+  const declaredAfterBack = () => pdf.getPageCount() + 1 - GELATO_COVER_PAGES;
+  while (declaredAfterBack() < MIN_INTERIOR || declaredAfterBack() % 2 !== 0) {
+    fill(addPrintPage(pdf)); // blank cream page, before the back cover
+  }
+
+  // BACK COVER (kept last)
   const back = addPrintPage(pdf);
   fill(back, PLUM);
   drawCenteredLines(back, cx, ["ONCE UPON"], labelFont, 14, 18, PAGE_H - SAFE - mm(8), MARIGOLD);
@@ -293,12 +306,10 @@ export async function buildPrintPdf(
     CREAM
   );
 
-  // Even total page count (Gelato requirement)
-  if (pdf.getPageCount() % 2 !== 0) fill(addPrintPage(pdf));
-
   applyPdfX4(pdf, safePdfText(book.title));
 
-  const pageCount = pdf.getPageCount();
+  // Declared interior page count (file total minus the 3 cover pages).
+  const pageCount = pdf.getPageCount() - GELATO_COVER_PAGES;
   const buf = Buffer.from(await pdf.save({ useObjectStreams: false }));
   // pdf-lib always writes a 1.7 header; PDF/X-4 is defined on PDF 1.6. Same byte
   // length, so xref offsets are unaffected.
