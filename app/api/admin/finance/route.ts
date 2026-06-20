@@ -46,16 +46,19 @@ async function anthropicSpend() {
   const key = process.env.ANTHROPIC_ADMIN_KEY;
   if (!key) return { connected: false };
   try {
+    // Anthropic's cost report requires UTC day boundaries for starting_at.
     const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const end = now.toISOString();
+    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
     const url = `https://api.anthropic.com/v1/organizations/cost_report?starting_at=${encodeURIComponent(
       start
-    )}&ending_at=${encodeURIComponent(end)}&bucket_width=1d`;
+    )}&bucket_width=1d&limit=31`;
     const res = await fetch(url, {
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01" },
     });
-    if (!res.ok) return { connected: false, error: `Anthropic API ${res.status}` };
+    if (!res.ok) {
+      const body = await res.text();
+      return { connected: false, error: `Anthropic API ${res.status}: ${body.slice(0, 120)}` };
+    }
     const json = (await res.json()) as { data?: { results?: { amount?: string | number }[] }[] };
     // Sum every result amount across every daily bucket. Amounts are dollar strings.
     let dollars = 0;
