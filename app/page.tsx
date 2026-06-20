@@ -1,8 +1,48 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Showcase from "@/components/Showcase";
 import { getShowcaseBooks, getFeaturedReview } from "@/lib/showcase";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Personalized Children's Books Starring Your Child | Once Upon",
+  description:
+    "Make a custom, fully-illustrated storybook with your child as the hero — personalize their name, look, and adventure. Delivered as a digital PDF, softcover, or hardcover. The perfect keepsake gift.",
+  alternates: { canonical: "/" },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://onceuponly.com/#org",
+      name: "Once Upon",
+      url: "https://onceuponly.com",
+      logo: "https://onceuponly.com/icon.svg",
+      description: "Personalized, fully-illustrated children's storybooks starring your child.",
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://onceuponly.com/#website",
+      url: "https://onceuponly.com",
+      name: "Once Upon",
+      publisher: { "@id": "https://onceuponly.com/#org" },
+    },
+    {
+      "@type": "Product",
+      name: "Personalized Storybook",
+      description: "A custom, fully-illustrated 40-page children's book starring your child.",
+      brand: { "@type": "Brand", name: "Once Upon" },
+      offers: [
+        { "@type": "Offer", name: "Digital PDF", price: "19.00", priceCurrency: "USD", availability: "https://schema.org/InStock" },
+        { "@type": "Offer", name: "Softcover", price: "34.00", priceCurrency: "USD", availability: "https://schema.org/InStock" },
+        { "@type": "Offer", name: "Hardcover", price: "49.00", priceCurrency: "USD", availability: "https://schema.org/InStock" },
+      ],
+    },
+  ],
+};
 
 export default async function Home() {
   const [books, featuredReview] = await Promise.all([getShowcaseBooks(), getFeaturedReview()]);
@@ -10,6 +50,7 @@ export default async function Home() {
 
   return (
     <div className="fade-in">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <header className="hero">
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
