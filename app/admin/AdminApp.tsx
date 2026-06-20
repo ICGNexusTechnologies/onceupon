@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import OverviewTab from "./OverviewTab";
+import FinanceTab from "./FinanceTab";
 import OrdersTab from "./OrdersTab";
 import CustomersTab from "./CustomersTab";
 import GiftCardsTab from "./GiftCardsTab";
@@ -12,6 +13,7 @@ import AdminIdleTimeout from "./AdminIdleTimeout";
 
 const BASE_TABS = [
   { key: "overview", label: "Overview" },
+  { key: "finance", label: "Finance" },
   { key: "orders", label: "Orders" },
   { key: "customers", label: "Customers" },
   { key: "giftcards", label: "Gift cards" },
@@ -60,6 +62,7 @@ export default function AdminApp({ isSuper }: { isSuper: boolean }) {
 
       <div className="wrap">
         {tab === "overview" && <OverviewTab toast={toast} onGoToOrders={() => setTab("orders")} />}
+        {tab === "finance" && <FinanceTab />}
         {tab === "orders" && <OrdersTab toast={toast} />}
         {tab === "customers" && <CustomersTab />}
         {tab === "giftcards" && <GiftCardsTab toast={toast} />}
