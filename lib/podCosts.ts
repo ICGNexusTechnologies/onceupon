@@ -16,6 +16,12 @@ export function podCostCents(format: string): number {
   return POD_COST_CENTS[format] ?? 0;
 }
 
+/**
+ * Estimated AI image-generation cost per book (fal.ai), in cents. Incurred once
+ * per book regardless of format. Based on ~$1.71/book observed in production.
+ */
+export const GEN_COST_CENTS = 171;
+
 /** Stripe standard processing fee: 2.9% + 30¢ per successful charge. */
 export function stripeFeeCents(amountCents: number): number {
   if (amountCents <= 0) return 0;
@@ -23,9 +29,9 @@ export function stripeFeeCents(amountCents: number): number {
 }
 
 /**
- * Margin in cents: what the customer paid minus our estimated POD cost and
- * the Stripe processing fee — i.e. the profit that actually lands.
+ * Margin in cents: what the customer paid minus our estimated POD cost, AI
+ * generation cost, and the Stripe processing fee — the profit that actually lands.
  */
 export function marginCents(amountCents: number, format: string): number {
-  return amountCents - podCostCents(format) - stripeFeeCents(amountCents);
+  return amountCents - podCostCents(format) - GEN_COST_CENTS - stripeFeeCents(amountCents);
 }
