@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import Showcase from "@/components/Showcase";
 import { getShowcaseBooks, getFeaturedReview } from "@/lib/showcase";
 
-export const dynamic = "force-dynamic";
+// Cache the landing page (ISR) and regenerate at most hourly, instead of hitting
+// the DB + AI synopsis generation on every visit. Big win under traffic spikes.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Personalized Children's Books Starring Your Child | Once Uponly",
