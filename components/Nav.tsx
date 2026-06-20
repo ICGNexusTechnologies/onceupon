@@ -37,6 +37,9 @@ export default function Nav() {
     setMenuOpen(false);
   }
 
+  // The admin dashboard has its own topbar — don't stack the customer nav on top of it.
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <nav className="topnav">
       <div className="wrap nav-inner">
