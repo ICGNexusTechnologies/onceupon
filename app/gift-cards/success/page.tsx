@@ -76,7 +76,7 @@ function SuccessContent() {
       </div>
 
       <p style={{ color: "var(--ink-soft)", fontSize: ".9rem", marginBottom: 28 }}>
-        They can use this code at checkout when ordering any Once Upon book.
+        They can use this code at checkout when ordering any Once Uponly book.
         Save it in case the email goes to spam!
       </p>
 

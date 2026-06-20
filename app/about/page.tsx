@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About — Once Upon",
+  title: "About — Once Uponly",
   description:
-    "We believe every child deserves to be the hero of their own story. Learn how Once Upon crafts personalized, illustrated storybooks for families.",
+    "We believe every child deserves to be the hero of their own story. Learn how Once Uponly crafts personalized, illustrated storybooks for families.",
 };
 
 export default function AboutPage() {
@@ -20,7 +20,7 @@ export default function AboutPage() {
             Every child deserves to be the <em>hero.</em>
           </h1>
           <p className="lead" style={{ maxWidth: "44ch", margin: "24px auto 0" }}>
-            We started Once Upon with one idea: the most magical book a child can
+            We started Once Uponly with one idea: the most magical book a child can
             read is one where they are the main character.
           </p>
         </div>
@@ -44,7 +44,7 @@ export default function AboutPage() {
                 actually is: her laugh, her love of dinosaurs, her best friend&apos;s name.
               </p>
               <p style={{ color: "var(--ink-soft)", lineHeight: 1.75 }}>
-                We built Once Upon to make that book. For every child. In minutes.
+                We built Once Uponly to make that book. For every child. In minutes.
               </p>
             </div>
             <div
@@ -254,7 +254,7 @@ export default function AboutPage() {
           <div className="foot-grid">
             <div>
               <div className="logo" style={{ color: "#fff", marginBottom: 14 }}>
-                <span className="star">✦</span>Once Upon
+                <span className="star">✦</span>Once Uponly
               </div>
               <p style={{ color: "#b3a8cc", fontSize: ".9rem", maxWidth: "30ch" }}>
                 Personalized storybooks that make every child the hero of their own adventure.
@@ -282,7 +282,7 @@ export default function AboutPage() {
               <Link href="/terms">Terms</Link>
             </div>
           </div>
-          <div className="foot-bottom">© 2026 Once Upon. Made with love.</div>
+          <div className="foot-bottom">© 2026 Once Uponly. Made with love.</div>
         </div>
       </footer>
     </div>

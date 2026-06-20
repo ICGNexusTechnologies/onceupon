@@ -1,4 +1,4 @@
-export const metadata = { title: "Terms of Service — Once Upon" };
+export const metadata = { title: "Terms of Service — Once Uponly" };
 
 export default function TermsPage() {
   return (
@@ -7,13 +7,13 @@ export default function TermsPage() {
         Terms of Service
       </h1>
       <p style={{ color: "var(--ink-soft)", marginBottom: 24 }}>
-        These terms govern your use of Once Upon (onceuponly.com) and the personalized storybooks we
+        These terms govern your use of Once Uponly (onceuponly.com) and the personalized storybooks we
         create. By using the site or placing an order, you agree to them.
       </p>
 
       <h3 style={{ color: "var(--plum)", marginTop: 28 }}>What we provide</h3>
       <p style={{ color: "var(--ink-soft)" }}>
-        Once Upon creates personalized children&rsquo;s storybooks, available as a digital PDF or a
+        Once Uponly creates personalized children&rsquo;s storybooks, available as a digital PDF or a
         printed softcover or hardcover book, using the details you provide.
       </p>
 
@@ -43,7 +43,7 @@ export default function TermsPage() {
 
       <h3 style={{ color: "var(--plum)", marginTop: 28 }}>Intellectual property</h3>
       <p style={{ color: "var(--ink-soft)" }}>
-        The Once Upon site, branding, and book templates are our property. You receive a personal,
+        The Once Uponly site, branding, and book templates are our property. You receive a personal,
         non-commercial license to the finished book you purchase for your own family use.
       </p>
 
@@ -55,7 +55,7 @@ export default function TermsPage() {
 
       <h3 style={{ color: "var(--plum)", marginTop: 28 }}>Limitation of liability</h3>
       <p style={{ color: "var(--ink-soft)" }}>
-        The service is provided &ldquo;as is.&rdquo; To the extent permitted by law, Once Upon is not
+        The service is provided &ldquo;as is.&rdquo; To the extent permitted by law, Once Uponly is not
         liable for indirect or incidental damages. Our total liability for any order is limited to the
         amount you paid for it.
       </p>

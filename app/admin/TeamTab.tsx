@@ -111,7 +111,7 @@ export default function TeamTab({ toast }: { toast: (m: string) => void }) {
         <div className="panel">
           <h3>Grant admin access</h3>
           <p className="dim" style={{ marginBottom: 12 }}>
-            Enter the email of someone who already has a Once Upon account. They&rsquo;ll get full dashboard access and
+            Enter the email of someone who already has a Once Uponly account. They&rsquo;ll get full dashboard access and
             must enable two-factor before it opens.
           </p>
           <div className="field">

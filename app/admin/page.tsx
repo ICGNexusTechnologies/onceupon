@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { getAdminContext } from "@/lib/admin";
 import AdminApp from "./AdminApp";
 
-export const metadata = { title: "Admin — Once Upon" };
+export const metadata = { title: "Admin — Once Uponly" };
 
 export default async function AdminPage() {
   const session = await getSession();

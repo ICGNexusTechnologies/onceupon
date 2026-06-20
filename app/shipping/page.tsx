@@ -1,4 +1,4 @@
-export const metadata = { title: "Shipping — Once Upon" };
+export const metadata = { title: "Shipping — Once Uponly" };
 
 export default function ShippingPage() {
   return (

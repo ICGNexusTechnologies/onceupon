@@ -6,7 +6,7 @@ import { getShowcaseBooks, getFeaturedReview } from "@/lib/showcase";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Personalized Children's Books Starring Your Child | Once Upon",
+  title: "Personalized Children's Books Starring Your Child | Once Uponly",
   description:
     "Make a custom, fully-illustrated storybook with your child as the hero — personalize their name, look, and adventure. Delivered as a digital PDF, softcover, or hardcover. The perfect keepsake gift.",
   alternates: { canonical: "/" },
@@ -18,7 +18,7 @@ const jsonLd = {
     {
       "@type": "Organization",
       "@id": "https://onceuponly.com/#org",
-      name: "Once Upon",
+      name: "Once Uponly",
       url: "https://onceuponly.com",
       logo: "https://onceuponly.com/icon.svg",
       description: "Personalized, fully-illustrated children's storybooks starring your child.",
@@ -27,14 +27,14 @@ const jsonLd = {
       "@type": "WebSite",
       "@id": "https://onceuponly.com/#website",
       url: "https://onceuponly.com",
-      name: "Once Upon",
+      name: "Once Uponly",
       publisher: { "@id": "https://onceuponly.com/#org" },
     },
     {
       "@type": "Product",
       name: "Personalized Storybook",
       description: "A custom, fully-illustrated 40-page children's book starring your child.",
-      brand: { "@type": "Brand", name: "Once Upon" },
+      brand: { "@type": "Brand", name: "Once Uponly" },
       offers: [
         { "@type": "Offer", name: "Digital PDF", price: "19.00", priceCurrency: "USD", availability: "https://schema.org/InStock" },
         { "@type": "Offer", name: "Softcover", price: "34.00", priceCurrency: "USD", availability: "https://schema.org/InStock" },
@@ -183,7 +183,7 @@ export default async function Home() {
           <div className="foot-grid">
             <div>
               <div className="logo" style={{ color: "#fff", marginBottom: 14 }}>
-                <span className="star">✦</span>Once Upon
+                <span className="star">✦</span>Once Uponly
               </div>
               <p style={{ color: "#b3a8cc", fontSize: ".9rem", maxWidth: "30ch" }}>
                 Personalized storybooks that make every child the hero of their own adventure.
@@ -211,7 +211,7 @@ export default async function Home() {
               <Link href="/terms">Terms</Link>
             </div>
           </div>
-          <div className="foot-bottom">© 2026 Once Upon. Made with love (and a little magic).</div>
+          <div className="foot-bottom">© 2026 Once Uponly. Made with love (and a little magic).</div>
         </div>
       </footer>
     </div>

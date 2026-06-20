@@ -64,7 +64,7 @@ function drawBrandMark(
   font: PDFFont,
   y: number
 ) {
-  const label = "ONCE UPON";
+  const label = "ONCE UPONLY";
   page.drawText(label, {
     x: (PAGE_WIDTH - font.widthOfTextAtSize(label, 10)) / 2,
     y,
@@ -117,7 +117,7 @@ export async function buildBookPdf(book: IBook): Promise<Buffer> {
   const labelFont = await pdf.embedFont(StandardFonts.HelveticaBold);
 
   pdf.setTitle(safePdfText(book.title));
-  pdf.setAuthor("Once Upon");
+  pdf.setAuthor("Once Uponly");
   pdf.setSubject(`Personalized storybook for ${safePdfText(book.child.name)}`);
 
   if (book.coverUrl) {

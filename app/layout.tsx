@@ -19,7 +19,7 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://onceuponly.com"),
-  title: "Once Upon — Personalized storybooks, made just for them",
+  title: "Once Uponly — Personalized storybooks, made just for them",
   description:
     "Create a personalized, fully-illustrated children's book starring your child. Answer a few questions and we'll craft a custom storybook — digital PDF, softcover, or hardcover. Ships across the US.",
   keywords: [
@@ -31,20 +31,20 @@ export const metadata: Metadata = {
     "personalized story book for kids",
     "AI children's book",
   ],
-  applicationName: "Once Upon",
+  applicationName: "Once Uponly",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
-    siteName: "Once Upon",
-    title: "Once Upon — Personalized storybooks, made just for them",
+    siteName: "Once Uponly",
+    title: "Once Uponly — Personalized storybooks, made just for them",
     description:
       "A custom, fully-illustrated storybook starring your child — the perfect keepsake gift. Digital, softcover, or hardcover.",
     url: "https://onceuponly.com",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Once Upon — personalized storybooks for kids" }],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Once Uponly — personalized storybooks for kids" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Once Upon — Personalized storybooks, made just for them",
+    title: "Once Uponly — Personalized storybooks, made just for them",
     description: "A custom, fully-illustrated storybook starring your child — the perfect keepsake gift.",
     images: ["/opengraph-image"],
   },

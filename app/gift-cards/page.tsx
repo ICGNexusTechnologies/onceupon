@@ -44,7 +44,7 @@ export default function GiftCardsPage() {
       <section className="band" style={{ background: "var(--paper-2)", padding: "70px 0 60px" }}>
         <div className="wrap" style={{ textAlign: "center" }}>
           <span className="eyebrow" style={{ marginBottom: 18, display: "inline-flex" }}>🎁 Give the gift of story</span>
-          <h1 className="display-l" style={{ marginBottom: 14 }}>Once Upon Gift Cards</h1>
+          <h1 className="display-l" style={{ marginBottom: 14 }}>Once Uponly Gift Cards</h1>
           <p style={{ color: "var(--ink-soft)", fontSize: "1.1rem", maxWidth: "40ch", margin: "0 auto" }}>
             Give someone a personalized storybook for the little one they love most.
           </p>
@@ -153,7 +153,7 @@ export default function GiftCardsPage() {
           <div className="foot-grid">
             <div>
               <div className="logo" style={{ color: "#fff", marginBottom: 14 }}>
-                <span className="star">✦</span>Once Upon
+                <span className="star">✦</span>Once Uponly
               </div>
               <p style={{ color: "#b3a8cc", fontSize: ".9rem", maxWidth: "30ch" }}>
                 Personalized storybooks that make every child the hero of their own adventure.
@@ -181,7 +181,7 @@ export default function GiftCardsPage() {
               <Link href="/terms">Terms</Link>
             </div>
           </div>
-          <div className="foot-bottom">© 2026 Once Upon. Made with love.</div>
+          <div className="foot-bottom">© 2026 Once Uponly. Made with love.</div>
         </div>
       </footer>
     </div>

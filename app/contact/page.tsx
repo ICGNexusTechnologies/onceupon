@@ -1,4 +1,4 @@
-export const metadata = { title: "Contact — Once Upon" };
+export const metadata = { title: "Contact — Once Uponly" };
 
 export default function ContactPage() {
   return (

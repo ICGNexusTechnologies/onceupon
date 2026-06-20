@@ -166,7 +166,7 @@ export default function Dashboard() {
         <div style={{ marginTop: 48 }}>
           {reviewDone ? (
             <div className="done-bar">
-              ✓ Thank you for your review! It helps other families discover Once Upon.
+              ✓ Thank you for your review! It helps other families discover Once Uponly.
             </div>
           ) : (
             <div className="card" style={{ maxWidth: 560 }}>

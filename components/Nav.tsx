@@ -41,7 +41,7 @@ export default function Nav() {
     <nav className="topnav">
       <div className="wrap nav-inner">
         <Link href="/" className="logo" onClick={closeMenu}>
-          <span className="star">✦</span>Once&nbsp;Upon
+          <span className="star">✦</span>Once&nbsp;Uponly
         </Link>
         <button
           className={`nav-toggle${menuOpen ? " open" : ""}`}

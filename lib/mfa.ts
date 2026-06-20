@@ -7,7 +7,7 @@ import { SignJWT, jwtVerify } from "jose";
 // Allow a one-step clock drift in either direction.
 authenticator.options = { window: 1 };
 
-const ISSUER = "Once Upon";
+const ISSUER = "Once Uponly";
 
 // --- TOTP secret encryption at rest (AES-256-GCM, key derived from JWT_SECRET) ---
 function encKey(): Buffer {

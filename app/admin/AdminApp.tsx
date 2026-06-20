@@ -37,7 +37,7 @@ export default function AdminApp({ isSuper }: { isSuper: boolean }) {
           <div className="brand">
             <span className="star">✦</span>
             <div>
-              Once&nbsp;Upon<small>Admin</small>
+              Once&nbsp;Uponly<small>Admin</small>
             </div>
           </div>
           <div className="who">

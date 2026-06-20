@@ -1,4 +1,4 @@
-export const metadata = { title: "Privacy Policy — Once Upon" };
+export const metadata = { title: "Privacy Policy — Once Uponly" };
 
 export default function PrivacyPage() {
   return (
@@ -7,7 +7,7 @@ export default function PrivacyPage() {
         Privacy Policy
       </h1>
       <p style={{ color: "var(--ink-soft)", marginBottom: 24 }}>
-        Once Upon respects your privacy. This page explains what we collect and how we use it.
+        Once Uponly respects your privacy. This page explains what we collect and how we use it.
       </p>
 
       <h3 style={{ color: "var(--plum)", marginTop: 28 }}>What we collect</h3>

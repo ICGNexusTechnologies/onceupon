@@ -98,7 +98,7 @@ export default function ReviewsPage() {
       {/* Hero */}
       <section className="band" style={{ background: "var(--paper-2)", padding: "70px 0 60px" }}>
         <div className="wrap" style={{ textAlign: "center" }}>
-          <span className="eyebrow" style={{ marginBottom: 18, display: "inline-flex" }}>✦ Families love Once Upon</span>
+          <span className="eyebrow" style={{ marginBottom: 18, display: "inline-flex" }}>✦ Families love Once Uponly</span>
           <h1 className="display-l" style={{ marginBottom: 16 }}>Real reviews from real parents</h1>
           {!loading && reviews.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 8 }}>
@@ -134,7 +134,7 @@ export default function ReviewsPage() {
             className="done-bar"
             style={{ marginBottom: 48, fontSize: "1rem", padding: "18px 24px" }}
           >
-            ✓ Thanks for your review! It helps other families discover Once Upon.
+            ✓ Thanks for your review! It helps other families discover Once Uponly.
           </div>
         ) : (
           <div className="card" style={{ marginBottom: 48 }}>
@@ -151,7 +151,7 @@ export default function ReviewsPage() {
                 <label>Your review</label>
                 <textarea
                   className="field textarea"
-                  placeholder="What did you love about your Once Upon book?"
+                  placeholder="What did you love about your Once Uponly book?"
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   maxLength={1000}
@@ -249,7 +249,7 @@ export default function ReviewsPage() {
           <div className="foot-grid">
             <div>
               <div className="logo" style={{ color: "#fff", marginBottom: 14 }}>
-                <span className="star">✦</span>Once Upon
+                <span className="star">✦</span>Once Uponly
               </div>
               <p style={{ color: "#b3a8cc", fontSize: ".9rem", maxWidth: "30ch" }}>
                 Personalized storybooks that make every child the hero of their own adventure.
@@ -274,7 +274,7 @@ export default function ReviewsPage() {
               <a>Contact</a>
             </div>
           </div>
-          <div className="foot-bottom">© 2026 Once Upon. Made with love (and a little magic).</div>
+          <div className="foot-bottom">© 2026 Once Uponly. Made with love (and a little magic).</div>
         </div>
       </footer>
     </div>

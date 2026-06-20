@@ -1,4 +1,4 @@
-export const metadata = { title: "Refund & Cancellation Policy — Once Upon" };
+export const metadata = { title: "Refund & Cancellation Policy — Once Uponly" };
 
 export default function RefundPage() {
   return (
@@ -7,7 +7,7 @@ export default function RefundPage() {
         Refund &amp; Cancellation Policy
       </h1>
       <p style={{ color: "var(--ink-soft)", marginBottom: 24 }}>
-        Every Once Upon book is personalized and printed to order, so our policy balances that with
+        Every Once Uponly book is personalized and printed to order, so our policy balances that with
         making sure you&rsquo;re always taken care of if something goes wrong. If you&rsquo;re ever
         unhappy with your order, email us at customersupport@onceuponly.com and we&rsquo;ll make it
         right.

@@ -14,7 +14,7 @@ export default function Showcase({ books }: { books: ShowcaseBook[] }) {
       <div className="wrap">
         <div className="section-head">
           <h2 className="display-l">Fresh off the press</h2>
-          <p>Real books families have created with Once Upon. Tap one for a peek.</p>
+          <p>Real books families have created with Once Uponly. Tap one for a peek.</p>
         </div>
         <div className="showcase-grid">
           {books.map((b) => (

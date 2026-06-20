@@ -51,8 +51,8 @@ export async function POST(req: Request) {
           currency: "usd",
           unit_amount: amountCents,
           product_data: {
-            name: `Once Upon Gift Card — ${PRICES[tier].label}`,
-            description: `For ${recipientName.trim()} · redeemable on any Once Upon book`,
+            name: `Once Uponly Gift Card — ${PRICES[tier].label}`,
+            description: `For ${recipientName.trim()} · redeemable on any Once Uponly book`,
           },
         },
         quantity: 1,

@@ -177,7 +177,7 @@ function applyPdfX4(pdf: PDFDocument, title: string) {
       <dc:title><rdf:Alt><rdf:li xml:lang="x-default">${title}</rdf:li></rdf:Alt></dc:title>
     </rdf:Description>
     <rdf:Description rdf:about="" xmlns:pdf="http://ns.adobe.com/pdf/1.3/">
-      <pdf:Producer>Once Upon</pdf:Producer>
+      <pdf:Producer>Once Uponly</pdf:Producer>
     </rdf:Description>
   </rdf:RDF>
 </x:xmpmeta>
@@ -215,8 +215,8 @@ export async function buildPrintPdf(
   const cx = PAGE_W / 2;
 
   pdf.setTitle(safePdfText(book.title));
-  pdf.setProducer("Once Upon");
-  pdf.setAuthor("Once Upon");
+  pdf.setProducer("Once Uponly");
+  pdf.setAuthor("Once Uponly");
 
   const fill = (page: Page, color = CREAM) => page.drawRectangle({ x: 0, y: 0, width: PAGE_W, height: PAGE_H, color });
 
@@ -231,7 +231,7 @@ export async function buildPrintPdf(
   // Back cover text in the left panel.
   const backCx = (BACK_L + SPINE_L) / 2;
   const backW = SPINE_L - BACK_L - mm(12);
-  drawCenteredLines(wrap, backCx, ["ONCE UPON"], labelFont, 14, 18, COVER_H - mm(16), MARIGOLD);
+  drawCenteredLines(wrap, backCx, ["ONCE UPONLY"], labelFont, 14, 18, COVER_H - mm(16), MARIGOLD);
   drawCenteredLines(wrap, backCx, wrapText(book.title, titleFont, 20, backW), titleFont, 20, 26, COVER_H * 0.56, CREAM);
   drawCenteredLines(
     wrap,
