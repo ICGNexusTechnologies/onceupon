@@ -89,7 +89,9 @@ export default function FinanceTab() {
             {data.anthropic.connected ? money(data.anthropic.monthToDateCents) : "—"}
           </div>
           <div className="sub">
-            {data.anthropic.connected ? "month-to-date spend" : "add ANTHROPIC_ADMIN_KEY to show"}
+            {data.anthropic.connected
+              ? "month-to-date spend"
+              : data.anthropic.error || "add ANTHROPIC_ADMIN_KEY to show"}
           </div>
         </div>
         <div className="card">
