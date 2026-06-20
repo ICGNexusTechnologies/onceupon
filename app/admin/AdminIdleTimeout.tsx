@@ -18,6 +18,15 @@ export default function AdminIdleTimeout() {
   const [warn, setWarn] = useState(false);
 
   useEffect(() => {
+    let done = false;
+    const logout = async () => {
+      if (done) return;
+      done = true;
+      await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      router.push("/auth?next=/admin&timeout=1");
+      router.refresh();
+    };
+
     const bump = () => {
       lastRef.current = Date.now();
       if (warnRef.current) {
@@ -28,13 +37,17 @@ export default function AdminIdleTimeout() {
     const events = ["mousemove", "keydown", "mousedown", "scroll", "touchstart"];
     events.forEach((e) => window.addEventListener(e, bump, { passive: true }));
 
-    const iv = window.setInterval(async () => {
+    // On returning to a backgrounded/suspended tab (mobile), check immediately.
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && Date.now() - lastRef.current >= IDLE_MS) logout();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
+    const iv = window.setInterval(() => {
       const idle = Date.now() - lastRef.current;
       if (idle >= IDLE_MS) {
         window.clearInterval(iv);
-        await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
-        router.push("/auth?next=/admin&timeout=1");
-        router.refresh();
+        logout();
       } else if (idle >= WARN_MS && !warnRef.current) {
         warnRef.current = true;
         setWarn(true);
@@ -43,6 +56,7 @@ export default function AdminIdleTimeout() {
 
     return () => {
       events.forEach((e) => window.removeEventListener(e, bump));
+      document.removeEventListener("visibilitychange", onVisible);
       window.clearInterval(iv);
     };
   }, [router]);
