@@ -71,7 +71,7 @@ export default function Nav() {
                   <span className="av">{(user.name || "?")[0].toUpperCase()}</span>
                   {user.name}
                 </Link>
-                <button className="nav-action" type="button" onClick={signOut}>Sign out</button>
+                <button className="btn btn-primary" type="button" onClick={signOut}>Sign out</button>
               </>
             ) : (
               <>
