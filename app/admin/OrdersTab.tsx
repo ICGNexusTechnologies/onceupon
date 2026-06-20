@@ -15,7 +15,7 @@ type AdminOrder = {
   amountCents: number;
   podCostCents: number;
   marginCents: number;
-  note: string;
+  notes: { text: string; at: string }[];
   status: string;
   stripeSessionId: string;
   gelatoOrderId: string;
@@ -255,11 +255,11 @@ function OrderDetail({
   const a = o.shippingAddress;
   const idx = STATUS_ORDER.indexOf(o.status);
   const times: Record<string, string> = { paid: o.createdAt, shipped: o.shippedAt };
-  const [note, setNote] = useState(o.note || "");
+  const [newNote, setNewNote] = useState("");
   const [refundAmt, setRefundAmt] = useState((o.amountCents / 100).toFixed(2));
 
   useEffect(() => {
-    setNote(o.note || "");
+    setNewNote("");
     setRefundAmt((o.amountCents / 100).toFixed(2));
   }, [o]);
 
@@ -336,12 +336,32 @@ function OrderDetail({
         </div>
 
         <div className="sec">
-          <h3>Internal note</h3>
+          <h3>Internal notes</h3>
+          {o.notes.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              {o.notes.map((n, i) => (
+                <div
+                  key={i}
+                  style={{ paddingBottom: 8, marginBottom: 8, borderBottom: i < o.notes.length - 1 ? "1px solid var(--line)" : "none" }}
+                >
+                  <div style={{ whiteSpace: "pre-wrap", color: "var(--plum)", fontSize: ".9rem" }}>{n.text}</div>
+                  <div className="dim" style={{ marginTop: 2 }}>{fmtDateTime(n.at)}</div>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="field">
-            <textarea rows={2} value={note} placeholder="Add a private note about this order…" onChange={(e) => setNote(e.target.value)} />
+            <textarea rows={2} value={newNote} placeholder="Add a note…" onChange={(e) => setNewNote(e.target.value)} />
           </div>
-          <button className="btn sm btn-ghost" disabled={busy || note === (o.note || "")} onClick={() => runAction(o.id, "note", { note })}>
-            Save note
+          <button
+            className="btn sm btn-ghost"
+            disabled={busy || !newNote.trim()}
+            onClick={() => {
+              runAction(o.id, "note", { note: newNote });
+              setNewNote("");
+            }}
+          >
+            Add note
           </button>
         </div>
 

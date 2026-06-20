@@ -15,7 +15,8 @@ export interface IOrder {
   trackingCode?: string;
   trackingUrl?: string;
   shippedAt?: Date;
-  note?: string;
+  note?: string; // legacy single note (migrated into notes[] on read)
+  notes?: { text: string; at: Date }[];
   createdAt: Date;
 }
 
@@ -34,6 +35,7 @@ const OrderSchema = new Schema<IOrder>({
   trackingUrl: String,
   shippedAt: Date,
   note: String,
+  notes: [{ text: String, at: { type: Date, default: Date.now } }],
   createdAt: { type: Date, default: Date.now },
 });
 

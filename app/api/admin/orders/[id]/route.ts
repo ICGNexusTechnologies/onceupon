@@ -198,9 +198,13 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     }
 
     if (action === "note") {
-      order.note = (note || "").slice(0, 1000);
-      await order.save();
-      return NextResponse.json({ ok: true, message: "Note saved" });
+      const text = (note || "").trim().slice(0, 1000);
+      if (text) {
+        order.notes = order.notes || [];
+        order.notes.push({ text, at: new Date() });
+        await order.save();
+      }
+      return NextResponse.json({ ok: true, message: "Note added" });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });

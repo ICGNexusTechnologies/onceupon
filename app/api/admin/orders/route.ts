@@ -44,7 +44,10 @@ export async function GET() {
       amountCents: o.amountCents || 0,
       podCostCents: podCostCents(o.format || ""),
       marginCents: marginCents(o.amountCents || 0, o.format || ""),
-      note: o.note || "",
+      notes: [
+        ...(o.note ? [{ text: o.note, at: o.createdAt }] : []),
+        ...(((o.notes as { text: string; at: Date }[] | undefined) || []).map((n) => ({ text: n.text, at: n.at }))),
+      ],
       status: o.status || "pending",
       stripeSessionId: o.stripeSessionId || "",
       gelatoOrderId: o.gelatoOrderId || "",
