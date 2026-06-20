@@ -16,7 +16,16 @@ export function podCostCents(format: string): number {
   return POD_COST_CENTS[format] ?? 0;
 }
 
-/** Margin in cents: what the customer paid minus our estimated POD cost. */
+/** Stripe standard processing fee: 2.9% + 30¢ per successful charge. */
+export function stripeFeeCents(amountCents: number): number {
+  if (amountCents <= 0) return 0;
+  return Math.round(amountCents * 0.029) + 30;
+}
+
+/**
+ * Margin in cents: what the customer paid minus our estimated POD cost and
+ * the Stripe processing fee — i.e. the profit that actually lands.
+ */
 export function marginCents(amountCents: number, format: string): number {
-  return amountCents - podCostCents(format);
+  return amountCents - podCostCents(format) - stripeFeeCents(amountCents);
 }
