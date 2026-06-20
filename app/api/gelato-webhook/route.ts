@@ -85,13 +85,15 @@ export async function POST(req: NextRequest) {
 
   const wasShipped = order.status === "shipped" || order.status === "fulfilled";
 
-  // Gelato nests tracking under items[].fulfillments[] (carrier = shipmentMethodName).
+  // Tracking can arrive under items[].fulfillments[] OR under shipment.packages[].
   const fulfillment = payload.items?.find((it) => it.fulfillments?.length)?.fulfillments?.[0];
-  if (fulfillment) {
-    if (fulfillment.trackingCode) order.trackingCode = fulfillment.trackingCode;
-    if (fulfillment.trackingUrl) order.trackingUrl = fulfillment.trackingUrl;
-    if (fulfillment.shipmentMethodName) order.carrier = fulfillment.shipmentMethodName;
-  }
+  const pkg = payload.shipment?.packages?.find((p) => p.trackingCode);
+  const trackingCode = fulfillment?.trackingCode || pkg?.trackingCode;
+  const trackingUrl = fulfillment?.trackingUrl || pkg?.trackingUrl;
+  const carrier = fulfillment?.shipmentMethodName || payload.shipment?.shipmentMethodName;
+  if (trackingCode) order.trackingCode = trackingCode;
+  if (trackingUrl) order.trackingUrl = trackingUrl;
+  if (carrier) order.carrier = carrier;
 
   order.status = status;
   if (status === "shipped" && !order.shippedAt) order.shippedAt = new Date();
@@ -141,4 +143,8 @@ interface GelatoEvent {
   fulfillmentStatus?: string;
   status?: string;
   items?: GelatoItem[];
+  shipment?: {
+    shipmentMethodName?: string;
+    packages?: { trackingCode?: string; trackingUrl?: string }[];
+  };
 }

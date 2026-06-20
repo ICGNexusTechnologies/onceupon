@@ -402,6 +402,13 @@ function OrderDetail({
               📄 View PDF
             </button>
             <button
+              className="btn btn-ghost"
+              disabled={busy || isPdf || !o.gelatoOrderId}
+              onClick={() => runAction(o.id, "sync-gelato")}
+            >
+              ⟳ Sync tracking
+            </button>
+            <button
               className="btn btn-ghost full"
               disabled={busy || isPdf || !o.gelatoOrderId || o.status === "shipped" || o.status === "fulfilled"}
               onClick={() =>

@@ -5,7 +5,7 @@ import Book from "@/models/Book";
 import User from "@/models/User";
 import { getAdminSession } from "@/lib/admin";
 import { getStripe } from "@/lib/stripe";
-import { submitOrderToGelato } from "@/lib/gelato";
+import { submitOrderToGelato, mapGelatoStatus } from "@/lib/gelato";
 import { sendOrderConfirmationEmail, sendShipmentEmail } from "@/lib/email";
 
 export const maxDuration = 60;
@@ -95,6 +95,36 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       if (order.status === "printing") order.status = "paid";
       await order.save();
       return NextResponse.json({ ok: true, message: "Fulfillment reset — you can submit to Gelato again." });
+    }
+
+    if (action === "sync-gelato") {
+      if (!order.gelatoOrderId) return NextResponse.json({ error: "No Gelato order to sync." }, { status: 400 });
+      const apiKey = process.env.GELATO_API_KEY;
+      if (!apiKey) return NextResponse.json({ error: "Gelato API key not configured." }, { status: 400 });
+      const res = await fetch(`https://order.gelatoapis.com/v4/orders/${order.gelatoOrderId}`, {
+        headers: { "X-API-KEY": apiKey },
+      });
+      if (!res.ok) {
+        return NextResponse.json({ error: `Gelato lookup failed (${res.status}).` }, { status: 502 });
+      }
+      const g = (await res.json()) as {
+        fulfillmentStatus?: string;
+        shipment?: { shipmentMethodName?: string; packages?: { trackingCode?: string; trackingUrl?: string }[] };
+      };
+      const mapped = g.fulfillmentStatus ? mapGelatoStatus(g.fulfillmentStatus) : null;
+      if (mapped) order.status = mapped;
+      const pkg = g.shipment?.packages?.find((p) => p.trackingCode);
+      if (g.shipment?.shipmentMethodName) order.carrier = g.shipment.shipmentMethodName;
+      if (pkg?.trackingCode) order.trackingCode = pkg.trackingCode;
+      if (pkg?.trackingUrl) order.trackingUrl = pkg.trackingUrl;
+      if (order.status === "shipped" && !order.shippedAt) order.shippedAt = new Date();
+      await order.save();
+      return NextResponse.json({
+        ok: true,
+        message: pkg?.trackingCode
+          ? `Synced — status ${g.fulfillmentStatus}, tracking ${pkg.trackingCode}`
+          : `Synced — status ${g.fulfillmentStatus} (no tracking yet)`,
+      });
     }
 
     if (action === "submit-gelato") {
