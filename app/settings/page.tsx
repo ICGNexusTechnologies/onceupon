@@ -39,9 +39,15 @@ export default function SettingsPage() {
   // profile
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [origEmail, setOrigEmail] = useState("");
+  const [profilePassword, setProfilePassword] = useState("");
   const [profileMsg, setProfileMsg] = useState("");
   const [profileErr, setProfileErr] = useState("");
   const [profileBusy, setProfileBusy] = useState(false);
+
+  // sessions
+  const [sessMsg, setSessMsg] = useState("");
+  const [sessBusy, setSessBusy] = useState(false);
 
   // password
   const [currentPassword, setCurrentPassword] = useState("");
@@ -72,6 +78,7 @@ export default function SettingsPage() {
         if (d?.user) {
           setName(d.user.name || "");
           setEmail(d.user.email || "");
+          setOrigEmail(d.user.email || "");
           setLoaded(true);
         }
       });
@@ -88,16 +95,38 @@ export default function SettingsPage() {
       const res = await fetch("/api/auth/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ name, email, password: profilePassword }),
       });
       const d = await res.json();
       if (!res.ok) throw new Error(d.error);
       setProfileMsg("Saved!");
+      setOrigEmail(email);
+      setProfilePassword("");
       router.refresh();
     } catch (e) {
       setProfileErr(e instanceof Error ? e.message : "Couldn't save.");
     } finally {
       setProfileBusy(false);
+    }
+  }
+
+  async function logoutAllDevices() {
+    setSessMsg("");
+    if (!(await confirm({
+      title: "Log out all other devices",
+      message: "Sign out of every other device where you're logged in? You'll stay signed in here.",
+      confirmLabel: "Log out others",
+    }))) return;
+    setSessBusy(true);
+    try {
+      const res = await fetch("/api/auth/logout-all", { method: "POST" });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error);
+      setSessMsg("Done — all other devices have been signed out.");
+    } catch (e) {
+      setSessMsg(e instanceof Error ? e.message : "Couldn't sign out other devices.");
+    } finally {
+      setSessBusy(false);
     }
   }
 
@@ -183,6 +212,17 @@ export default function SettingsPage() {
           <label>Email</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" />
         </div>
+        {email.trim().toLowerCase() !== origEmail.trim().toLowerCase() && (
+          <div className="field">
+            <label>Current password (required to change your email)</label>
+            <input
+              type="password"
+              value={profilePassword}
+              onChange={(e) => setProfilePassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
+        )}
         <button className="btn btn-primary" onClick={saveProfile} disabled={profileBusy}>
           {profileBusy ? "Saving…" : "Save changes"}
         </button>
@@ -210,6 +250,18 @@ export default function SettingsPage() {
         </button>
         {pwMsg && <span style={{ color: "var(--leaf)", fontWeight: 700, marginLeft: 12 }}>{pwMsg}</span>}
         {pwErr && <p style={{ color: "#c4452f", fontWeight: 700, marginTop: 10 }}>{pwErr}</p>}
+      </div>
+
+      {/* Active sessions */}
+      <div className="buy-card" style={{ marginBottom: 24 }}>
+        <h3 style={{ marginTop: 0, color: "var(--plum)" }}>Active sessions</h3>
+        <p style={{ color: "var(--ink-soft)", marginBottom: 14 }}>
+          Signed in on a device you no longer have? Sign out everywhere else — you&rsquo;ll stay signed in here.
+        </p>
+        <button className="btn" onClick={logoutAllDevices} disabled={sessBusy}>
+          {sessBusy ? "Signing out…" : "Log out all other devices"}
+        </button>
+        {sessMsg && <p style={{ color: "var(--leaf)", fontWeight: 700, marginTop: 10 }}>{sessMsg}</p>}
       </div>
 
       {/* Two-factor authentication */}

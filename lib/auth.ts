@@ -1,5 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { dbConnect } from "@/lib/db";
+import User from "@/models/User";
 
 const COOKIE_NAME = "ou_token";
 const secret = () => new TextEncoder().encode(process.env.JWT_SECRET!);
@@ -41,11 +43,32 @@ export async function clearSessionCookie() {
   (await cookies()).delete(COOKIE_NAME);
 }
 
-/** Read + verify the session from the request cookie. Null if absent/invalid. */
+/** Read + verify the session from the request cookie. Null if absent/invalid
+ *  or revoked via "log out all devices" (sessionsValidAfter). */
 export async function getSession(): Promise<SessionPayload | null> {
   const token = (await cookies()).get(COOKIE_NAME)?.value;
   if (!token) return null;
-  return verifyToken(token);
+
+  let payload: SessionPayload & { iat?: number };
+  try {
+    const { payload: p } = await jwtVerify(token, secret());
+    payload = p as unknown as SessionPayload & { iat?: number };
+  } catch {
+    return null;
+  }
+
+  // Revocation: reject tokens issued before the user's sessionsValidAfter.
+  try {
+    await dbConnect();
+    const user = await User.findById(payload.userId).select("sessionsValidAfter").lean();
+    if (user?.sessionsValidAfter && payload.iat && payload.iat * 1000 < user.sessionsValidAfter.getTime()) {
+      return null;
+    }
+  } catch {
+    // On a DB hiccup, don't lock everyone out — the signature is already valid.
+  }
+
+  return { userId: payload.userId, email: payload.email, name: payload.name };
 }
 
 export { COOKIE_NAME };

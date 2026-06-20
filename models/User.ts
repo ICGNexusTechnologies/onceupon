@@ -15,6 +15,7 @@ export interface IUser {
   verifyTokenHash?: string;
   verifyTokenExpires?: Date;
   isAdmin?: boolean; // DB-granted admin (super-admins come from ADMIN_EMAILS)
+  sessionsValidAfter?: Date; // tokens issued before this are rejected (log out all devices)
   createdAt: Date;
 }
 
@@ -32,6 +33,7 @@ const UserSchema = new Schema<IUser>({
   verifyTokenHash: String,
   verifyTokenExpires: Date,
   isAdmin: { type: Boolean, default: false },
+  sessionsValidAfter: Date,
   createdAt: { type: Date, default: Date.now },
 });
 
