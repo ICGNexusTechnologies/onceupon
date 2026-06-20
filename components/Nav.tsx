@@ -61,7 +61,7 @@ export default function Nav() {
             <Link href="/#how" onClick={closeMenu}>How it works</Link>
             <Link href="/#prices" onClick={closeMenu}>Pricing</Link>
             <Link href="/about" onClick={closeMenu}>About</Link>
-            <Link href="/dashboard" onClick={closeMenu}>My Books</Link>
+            {user && <Link href="/dashboard" onClick={closeMenu}>My Books</Link>}
             {user && <Link href="/orders" onClick={closeMenu}>Orders</Link>}
           </div>
           <div className="acct">
