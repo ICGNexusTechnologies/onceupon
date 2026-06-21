@@ -41,39 +41,6 @@ async function stripeBalance() {
   }
 }
 
-/** Anthropic month-to-date spend via the org Cost Report API. Needs an admin key. */
-async function anthropicSpend() {
-  const key = process.env.ANTHROPIC_ADMIN_KEY;
-  if (!key) return { connected: false };
-  try {
-    // Anthropic's cost report requires UTC day boundaries for starting_at.
-    const now = new Date();
-    const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
-    const url = `https://api.anthropic.com/v1/organizations/cost_report?starting_at=${encodeURIComponent(
-      start
-    )}&bucket_width=1d&limit=31`;
-    const res = await fetch(url, {
-      headers: { "x-api-key": key, "anthropic-version": "2023-06-01" },
-    });
-    if (!res.ok) {
-      const body = await res.text();
-      return { connected: false, error: `Anthropic API ${res.status}: ${body.slice(0, 120)}` };
-    }
-    const json = (await res.json()) as { data?: { results?: { amount?: string | number }[] }[] };
-    // Sum every result amount across every daily bucket. Amounts are dollar strings.
-    let dollars = 0;
-    for (const bucket of json.data || []) {
-      for (const r of bucket.results || []) {
-        const v = typeof r.amount === "string" ? parseFloat(r.amount) : r.amount;
-        if (typeof v === "number" && !Number.isNaN(v)) dollars += v;
-      }
-    }
-    return { connected: true, monthToDateCents: Math.round(dollars * 100) };
-  } catch (e) {
-    return { connected: false, error: e instanceof Error ? e.message : "Anthropic unavailable" };
-  }
-}
-
 /** GET /api/admin/finance — one place to see what's coming in and going out. */
 export async function GET() {
   const admin = await getAdminSession();
@@ -88,7 +55,7 @@ export async function GET() {
   monthStart.setHours(0, 0, 0, 0);
   const thisMonthOrders = paidPlus.filter((o) => new Date(o.createdAt) >= monthStart);
 
-  const [stripe, anthropic] = await Promise.all([stripeBalance(), anthropicSpend()]);
+  const stripe = await stripeBalance();
 
   return NextResponse.json({
     allTime: summarize(paidPlus),
@@ -96,7 +63,6 @@ export async function GET() {
     monthLabel: monthStart.toLocaleString(undefined, { month: "long", year: "numeric" }),
     refundedCount: orders.filter((o) => o.status === "refunded").length,
     stripe,
-    anthropic,
     fal: {
       connected: false,
       dashboardUrl: "https://fal.ai/dashboard/billing",

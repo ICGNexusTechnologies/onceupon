@@ -20,9 +20,6 @@ type Finance = {
   stripe:
     | { connected: true; availableCents: number; pendingCents: number; currency: string }
     | { connected: false; error?: string };
-  anthropic:
-    | { connected: true; monthToDateCents: number }
-    | { connected: false; error?: string };
   fal: { connected: false; dashboardUrl: string; note: string };
 };
 
@@ -84,14 +81,10 @@ export default function FinanceTab() {
           </div>
         </div>
         <div className="card">
-          <div className="lbl">Anthropic — this month</div>
-          <div className="val">
-            {data.anthropic.connected ? money(data.anthropic.monthToDateCents) : "—"}
-          </div>
+          <div className="lbl">AI generation — this month</div>
+          <div className="val">{money(data.thisMonth.genCostCents)}</div>
           <div className="sub">
-            {data.anthropic.connected
-              ? "month-to-date spend"
-              : data.anthropic.error || "add ANTHROPIC_ADMIN_KEY to show"}
+            est. {Math.round(data.thisMonth.genCostCents / 171)} book(s) × ~$1.71
           </div>
         </div>
         <div className="card">
