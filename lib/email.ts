@@ -82,6 +82,46 @@ export async function sendPasswordResetEmail({
   });
 }
 
+export async function sendAdminGrantedEmail({
+  to,
+  name,
+  needsMfa,
+}: {
+  to: string;
+  name?: string;
+  needsMfa: boolean;
+}) {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping admin-granted email to", to);
+    return;
+  }
+
+  // If they still need two-factor, send them straight to the setup screen;
+  // otherwise drop them right into the dashboard.
+  const ctaUrl = needsMfa ? `${APP_URL()}/settings?mfa=setup#security` : `${APP_URL()}/admin`;
+  const ctaLabel = needsMfa ? "Set up two-factor →" : "Open the dashboard →";
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: "You've been given admin access to Once Uponly",
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:36px 24px;background:#FBF4E6;border-radius:16px">
+        <h1 style="color:#3A2A5C;font-size:1.6rem;margin:0 0 8px">You're an admin now 🔐</h1>
+        <p style="color:#5A4E6E;margin:0 0 16px">Hi${name ? " " + name : ""}, you've been granted admin access to the Once Uponly dashboard.</p>
+        ${
+          needsMfa
+            ? `<p style="color:#5A4E6E;margin:0 0 24px">For security, admins must turn on two-factor authentication before the dashboard will open. Click below to set it up now — it takes about a minute with any authenticator app.</p>`
+            : `<p style="color:#5A4E6E;margin:0 0 24px">You're all set — your account already has two-factor enabled, so you can jump straight in.</p>`
+        }
+        <a href="${ctaUrl}" style="display:inline-block;background:#E0654E;color:#fff;padding:14px 28px;border-radius:999px;font-weight:700;text-decoration:none">${ctaLabel}</a>
+        <p style="color:#9B92B3;font-size:.8rem;margin-top:28px">Once Uponly · Personalized storybooks for every child</p>
+      </div>
+    `,
+  });
+}
+
 export async function sendVerificationEmail({
   to,
   name,

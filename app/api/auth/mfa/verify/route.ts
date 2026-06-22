@@ -3,6 +3,7 @@ import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import { signToken, setSessionCookie } from "@/lib/auth";
 import { decryptSecret, verifyTotp, matchBackupCode, verifyMfaChallenge } from "@/lib/mfa";
+import { isSuperAdminEmail } from "@/lib/admin";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 /** POST /api/auth/mfa/verify — second login step: { mfaToken, code } -> session. */
@@ -44,5 +45,6 @@ export async function POST(req: NextRequest) {
 
   const token = await signToken({ userId: user._id.toString(), email: user.email, name: user.name });
   await setSessionCookie(token);
-  return NextResponse.json({ user: { id: user._id, email: user.email, name: user.name } });
+  const isAdmin = !!user.isAdmin || isSuperAdminEmail(user.email);
+  return NextResponse.json({ user: { id: user._id, email: user.email, name: user.name }, isAdmin });
 }

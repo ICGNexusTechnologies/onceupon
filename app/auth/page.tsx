@@ -44,7 +44,7 @@ function AuthForm() {
         setSignedUpEmail(email);
         return;
       }
-      router.push(params.get("next") || "/dashboard");
+      router.push(params.get("next") || (data.isAdmin ? "/admin" : "/dashboard"));
       router.refresh();
     } catch {
       setErr("Something went wrong. Please try again.");
@@ -106,7 +106,7 @@ function AuthForm() {
         setErr(data.error || "Invalid code.");
         return;
       }
-      router.push(params.get("next") || "/dashboard");
+      router.push(params.get("next") || (data.isAdmin ? "/admin" : "/dashboard"));
       router.refresh();
     } catch {
       setErr("Something went wrong. Please try again.");

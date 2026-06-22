@@ -265,7 +265,9 @@ export default function SettingsPage() {
       </div>
 
       {/* Two-factor authentication */}
-      <MfaSection />
+      <div id="security">
+        <MfaSection />
+      </div>
 
       {/* Orders */}
       <div className="buy-card">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import User, { type IUser } from "@/models/User";
 import { getSuperAdminSession, isSuperAdminEmail } from "@/lib/admin";
+import { sendAdminGrantedEmail } from "@/lib/email";
 
 function superEmails(): string[] {
   return (process.env.ADMIN_EMAILS || "")
@@ -65,7 +66,16 @@ export async function POST(req: NextRequest) {
   if (action === "grant") {
     user.isAdmin = true;
     await user.save();
-    const note = user.mfaEnabled ? "" : " (they must enable two-factor before they can open the dashboard)";
+    // Email them a link straight to two-factor setup (or the dashboard if they
+    // already have it) so they don't have to discover the admin URL themselves.
+    try {
+      await sendAdminGrantedEmail({ to: user.email, name: user.name, needsMfa: !user.mfaEnabled });
+    } catch (err) {
+      console.error("admin-granted email failed", err);
+    }
+    const note = user.mfaEnabled
+      ? " — we emailed them a link to the dashboard"
+      : " — we emailed them a link to set up two-factor first";
     return NextResponse.json({ ok: true, message: `${e} is now an admin${note}` });
   }
   if (action === "revoke") {
