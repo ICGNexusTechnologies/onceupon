@@ -40,13 +40,15 @@ export const metadata: Metadata = {
     description:
       "A custom, fully-illustrated storybook starring your child — the perfect keepsake gift. Digital, softcover, or hardcover.",
     url: "https://onceuponly.com",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Once Uponly — personalized storybooks for kids" }],
+    // Static, CDN-served card (not generated per-request) so mobile link
+    // scrapers never time out and fall back to a page screenshot.
+    images: [{ url: "/og.jpg", width: 1200, height: 630, type: "image/jpeg", alt: "Once Uponly — personalized storybooks for kids" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Once Uponly — Personalized storybooks, made just for them",
     description: "A custom, fully-illustrated storybook starring your child — the perfect keepsake gift.",
-    images: ["/opengraph-image"],
+    images: ["/og.jpg"],
   },
   robots: { index: true, follow: true },
 };
