@@ -25,7 +25,7 @@ export default function GiftCardsTab({ toast }: { toast: (m: string) => void }) 
   // issue form
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
-  const [amount, setAmount] = useState("49");
+  const [amount, setAmount] = useState("54");
   const [message, setMessage] = useState("");
 
   const load = useCallback(async () => {
@@ -149,8 +149,8 @@ export default function GiftCardsTab({ toast }: { toast: (m: string) => void }) 
             <label>Amount</label>
             <select value={amount} onChange={(e) => setAmount(e.target.value)}>
               <option value="19">Digital PDF — $19</option>
-              <option value="34">Softcover Book — $34</option>
-              <option value="49">Hardcover Book — $49</option>
+              <option value="39">Softcover Book — $39</option>
+              <option value="54">Hardcover Book — $54</option>
             </select>
           </div>
           <div className="field">

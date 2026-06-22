@@ -14,6 +14,6 @@ export function getStripe(): Stripe {
 
 export const PRICES: Record<string, { label: string; amountCents: number; physical: boolean }> = {
   pdf: { label: "Digital PDF", amountCents: 1900, physical: false },
-  softcover: { label: "Softcover + PDF", amountCents: 3400, physical: true },
-  hardcover: { label: "Hardcover + PDF", amountCents: 4900, physical: true },
+  softcover: { label: "Softcover + PDF", amountCents: 3900, physical: true },
+  hardcover: { label: "Hardcover + PDF", amountCents: 5400, physical: true },
 };

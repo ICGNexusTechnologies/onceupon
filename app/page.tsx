@@ -166,14 +166,14 @@ export default async function Home() {
             <div className="price-card feat">
               <div className="pc-tag">MOST LOVED</div>
               <h3>Hardcover</h3>
-              <div className="amt">$49</div>
-              <p>Premium hardcover keepsake + free PDF. Delivered in 2–4 business days.</p>
+              <div className="amt">$54</div>
+              <p>Premium hardcover keepsake + free PDF. Free US shipping, delivered in 2–4 business days.</p>
               <Link href="/create" className="btn btn-primary">Start →</Link>
             </div>
             <div className="price-card">
               <h3>Softcover</h3>
-              <div className="amt">$34</div>
-              <p>Lightweight printed book + free PDF. A lovely everyday read.</p>
+              <div className="amt">$39</div>
+              <p>Lightweight printed book + free PDF. Free US shipping on every order.</p>
               <Link href="/create" className="btn btn-ghost">Start →</Link>
             </div>
           </div>

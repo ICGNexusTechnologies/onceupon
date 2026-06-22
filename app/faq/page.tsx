@@ -17,7 +17,7 @@ const FAQS = [
   },
   {
     q: "What formats can I get?",
-    a: "Digital PDF ($19), Softcover + PDF ($34), and Hardcover + PDF ($49). Every option includes the print-ready digital PDF.",
+    a: "Digital PDF ($19), Softcover + PDF ($39), and Hardcover + PDF ($54). Every option includes the print-ready digital PDF, and printed books ship free within the US.",
   },
   {
     q: "How personalized is the book really?",

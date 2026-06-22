@@ -30,8 +30,8 @@ interface BookData {
 
 const FORMATS = [
   { key: "pdf", label: "Digital PDF", price: 19, note: "Print-ready download, instant" },
-  { key: "softcover", label: "Softcover + PDF", price: 34, note: "Printed book, ships in 2–4 business days" },
-  { key: "hardcover", label: "Hardcover + PDF", price: 49, note: "Premium keepsake · best value" },
+  { key: "softcover", label: "Softcover + PDF", price: 39, note: "Printed book · free US shipping, 2–4 business days" },
+  { key: "hardcover", label: "Hardcover + PDF", price: 54, note: "Premium keepsake · free US shipping · best value" },
 ];
 
 export default function BookReader({ params }: { params: Promise<{ id: string }> }) {

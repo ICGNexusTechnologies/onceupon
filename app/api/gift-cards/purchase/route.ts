@@ -7,8 +7,8 @@ import { rateLimit, clientIp } from "@/lib/rateLimit";
 
 const TIERS: Record<string, number> = {
   pdf: 1900,
-  softcover: 3400,
-  hardcover: 4900,
+  softcover: 3900,
+  hardcover: 5400,
 };
 
 export async function POST(req: Request) {

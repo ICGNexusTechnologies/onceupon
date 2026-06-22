@@ -5,8 +5,8 @@ import Link from "next/link";
 
 const TIERS = [
   { key: "pdf", label: "Digital PDF", price: 19, note: "Instant download, great for last-minute gifts", emoji: "📄" },
-  { key: "softcover", label: "Softcover Book", price: 34, note: "Printed book + free PDF", emoji: "📗" },
-  { key: "hardcover", label: "Hardcover Book", price: 49, note: "Premium keepsake + free PDF", emoji: "📚", popular: true },
+  { key: "softcover", label: "Softcover Book", price: 39, note: "Printed book + free PDF · free US shipping", emoji: "📗" },
+  { key: "hardcover", label: "Hardcover Book", price: 54, note: "Premium keepsake + free PDF · free US shipping", emoji: "📚", popular: true },
 ];
 
 export default function GiftCardsPage() {
