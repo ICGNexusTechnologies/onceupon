@@ -1,9 +1,12 @@
 import { ImageResponse } from "next/og";
+import sharp from "sharp";
 import { getShowcaseBooks } from "@/lib/showcase";
 
 export const alt = "Once Uponly — personalized storybooks for kids";
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+// Served as JPEG: mobile previewers (iMessage/WhatsApp) drop OG images over
+// ~300KB, and a 1200x630 PNG of this card runs ~550KB. JPEG keeps it ~150KB.
+export const contentType = "image/jpeg";
 
 // Rich social-share card: a real book cover beside the value prop.
 export default async function OpengraphImage() {
@@ -19,7 +22,7 @@ export default async function OpengraphImage() {
       ? cover.replace("/image/upload/", "/image/upload/w_520,h_650,c_fill,q_auto/")
       : cover;
 
-  return new ImageResponse(
+  const png = new ImageResponse(
     (
       <div
         style={{
@@ -67,4 +70,17 @@ export default async function OpengraphImage() {
     ),
     { ...size }
   );
+
+  // Re-encode the generated PNG as a compressed JPEG so mobile link previewers
+  // (which cap OG images around 300KB) will actually display it.
+  const jpeg = await sharp(Buffer.from(await png.arrayBuffer()))
+    .jpeg({ quality: 82, mozjpeg: true })
+    .toBuffer();
+
+  return new Response(new Uint8Array(jpeg), {
+    headers: {
+      "Content-Type": "image/jpeg",
+      "Cache-Control": "public, immutable, no-transform, max-age=31536000",
+    },
+  });
 }
