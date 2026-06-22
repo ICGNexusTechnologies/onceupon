@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ART_STYLES, DEFAULT_ART_STYLE } from "@/lib/artStyles";
+import { LANGUAGES, DEFAULT_LANGUAGE } from "@/lib/languages";
 
 const HAIR = ["#4A3220", "#1a1a1a", "#C9962F", "#A8442A"];
 const SKIN = ["#F2D2B0", "#C68A5E", "#9C6B3F", "#6E4525"];
@@ -43,6 +44,7 @@ export default function CreateWizard() {
   const [world, setWorld] = useState(WORLDS[0].label);
   const [tone, setTone] = useState(TONES[0]);
   const [artStyle, setArtStyle] = useState(DEFAULT_ART_STYLE.key);
+  const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
   const [dedication, setDedication] = useState("");
 
   const heroName = name.trim() || "your child";
@@ -86,6 +88,7 @@ export default function CreateWizard() {
           world,
           tone,
           artStyle,
+          language,
           dedication: dedication.trim(),
         }),
       });
@@ -142,6 +145,20 @@ export default function CreateWizard() {
                   ))}
                 </select>
               </div>
+            </div>
+            <div className="field">
+              <label>Book language</label>
+              <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                {LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.native}
+                    {l.label !== l.native ? ` (${l.label})` : ""}
+                  </option>
+                ))}
+              </select>
+              <p style={{ color: "var(--ink-soft)", fontSize: ".82rem", marginTop: 6 }}>
+                The whole story is written in this language.
+              </p>
             </div>
           </div>
         )}
@@ -294,6 +311,10 @@ export default function CreateWizard() {
               <div>
                 <b>Art style</b>
                 <span>{ART_STYLES.find((s) => s.key === artStyle)?.label}</span>
+              </div>
+              <div>
+                <b>Language</b>
+                <span>{LANGUAGES.find((l) => l.code === language)?.native}</span>
               </div>
             </div>
           </div>

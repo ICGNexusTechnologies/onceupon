@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import Book from "@/models/Book";
 import { generateStory, moderateLoves } from "@/lib/story";
 import { resolveArtStyle } from "@/lib/artStyles";
+import { resolveLanguage } from "@/lib/languages";
 
 export const maxDuration = 300; // story gen takes a few minutes (3 chunked LLM calls)
 
@@ -15,10 +16,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, age, hairColor, skinTone, outfitColor, loves, value, world, tone, dedication, artStyle } = body;
+    const { name, age, hairColor, skinTone, outfitColor, loves, value, world, tone, dedication, artStyle, language } = body;
     if (!name || !loves) {
       return NextResponse.json({ error: "Name and loves are required." }, { status: 400 });
     }
+    const lang = resolveLanguage(language); // falls back to English for anything unknown
 
     await dbConnect();
 
@@ -51,6 +53,7 @@ export async function POST(req: NextRequest) {
       tone: String(tone || "Magical"),
       dedication: String(dedication || ""),
       artStyle: resolveArtStyle(artStyle),
+      language: lang.code,
     });
 
     const book = await Book.create({
@@ -68,6 +71,7 @@ export async function POST(req: NextRequest) {
       value,
       world,
       tone,
+      language: lang.code,
       characterSheet: story.characterSheet,
       artStyle: story.artStyle,
       status: "preview",

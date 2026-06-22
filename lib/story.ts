@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { resolveLanguage } from "@/lib/languages";
 
 const MODEL = "claude-sonnet-4-6";
 const TOTAL_PAGES = 40;
@@ -20,6 +21,8 @@ export interface StoryInput {
   dedication: string;
   /** Buyer-chosen illustration style (resolved prompt sentence). */
   artStyle: string;
+  /** Language code the story text is written in (default "en"). */
+  language?: string;
 }
 
 export interface StoryPage {
@@ -111,12 +114,21 @@ async function generateChunk(userPrompt: string, attempt = 0): Promise<ChunkResu
 }
 
 export async function generateStory(input: StoryInput): Promise<StoryResult> {
+  const lang = resolveLanguage(input.language);
+  // Story title + page text go in the target language; the illustrator-facing
+  // fields (characterSheet, imagePrompt, artStyle, storyBible) stay in English so
+  // the image model keeps performing well.
+  const languageLine =
+    lang.code === "en"
+      ? ""
+      : ` LANGUAGE: Write the book's "title" and every page's "text" in ${lang.promptName}, using natural, age-appropriate wording a native-speaking parent would read aloud (correct accents and punctuation). Keep "characterSheet", "imagePrompt", "artStyle", and "storyBible" in English. The ${MAX_PAGE_CHARS}-character per-page limit still applies in ${lang.promptName}.`;
   const childDesc =
     `Child: ${input.name}, age ${input.age}. Hair color ${input.hairColor}, skin tone ${input.skinTone}, ` +
     `outfit color ${input.outfitColor}. Loves: ${input.loves}. Story celebrates: ${input.value}. ` +
     `World: ${input.world}. Mood: ${input.tone}.` +
     ` Illustration style (use this exact style for artStyle): ${input.artStyle}` +
-    (input.dedication ? ` Dedication: ${input.dedication}` : "");
+    (input.dedication ? ` Dedication: ${input.dedication}` : "") +
+    languageLine;
 
   // Chunk 1 — establishes title, characterSheet, artStyle, storyBible, pages 1-14
   const first = await generateChunk(
@@ -176,12 +188,15 @@ export async function generateStory(input: StoryInput): Promise<StoryResult> {
 }
 
 /** One-time back-cover synopsis for a finished book (cached on the Book document). */
-export async function generateSynopsis(title: string, storyText: string): Promise<string> {
+export async function generateSynopsis(title: string, storyText: string, language?: string): Promise<string> {
+  const lang = resolveLanguage(language);
+  const langInstruction = lang.code === "en" ? "" : ` Write the synopsis in ${lang.promptName}.`;
   const res = await client.messages.create({
     model: "claude-haiku-4-5",
     max_tokens: 300,
     system:
-      "You write back-cover synopses for personalized children's picture books. Given a book's title and full text, reply with only a warm 2-3 sentence synopsis (under 60 words) that teases the adventure without revealing the ending. Plain prose only: no markdown, no headings, and do not repeat the title.",
+      "You write back-cover synopses for personalized children's picture books. Given a book's title and full text, reply with only a warm 2-3 sentence synopsis (under 60 words) that teases the adventure without revealing the ending. Plain prose only: no markdown, no headings, and do not repeat the title." +
+      langInstruction,
     messages: [{ role: "user", content: `Title: ${title}\n\nStory:\n${storyText}` }],
   });
   const text = res.content.find((b) => b.type === "text");

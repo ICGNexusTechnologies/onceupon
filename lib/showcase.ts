@@ -39,7 +39,7 @@ export async function getShowcaseBooks(limit = 6): Promise<ShowcaseBook[]> {
     const books = await Book.find({ coverUrl: { $exists: true, $nin: [null, ""] } })
       .sort({ createdAt: -1 })
       .limit(limit)
-      .select("title coverUrl synopsis child.name tone world value pages");
+      .select("title coverUrl synopsis child.name tone world value pages language");
 
     const result: ShowcaseBook[] = [];
     for (const b of books) {
@@ -48,7 +48,8 @@ export async function getShowcaseBooks(limit = 6): Promise<ShowcaseBook[]> {
         try {
           synopsis = await generateSynopsis(
             b.title,
-            b.pages.map((p) => p.text).join(" ")
+            b.pages.map((p) => p.text).join(" "),
+            b.language
           );
         } catch {
           synopsis = `A ${b.tone || "heartwarming"} adventure in ${b.world || "a magical world"}, all about ${b.value || "courage"} — starring ${b.child?.name || "one brave kid"}.`;
