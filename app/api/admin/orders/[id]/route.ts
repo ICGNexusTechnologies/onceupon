@@ -68,6 +68,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         trackingCode: order.trackingCode,
         trackingUrl: order.trackingUrl,
       });
+      if (!order.shipmentEmailSentAt) {
+        order.shipmentEmailSentAt = new Date();
+        await order.save();
+      }
       return NextResponse.json({ ok: true, message: "Shipment email re-sent" });
     }
 
@@ -111,7 +115,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         fulfillmentStatus?: string;
         shipment?: { shipmentMethodName?: string; packages?: { trackingCode?: string; trackingUrl?: string }[] };
       };
-      const wasShipped = order.status === "shipped" || order.status === "fulfilled";
       const mapped = g.fulfillmentStatus ? mapGelatoStatus(g.fulfillmentStatus) : null;
       if (mapped) order.status = mapped;
       const pkg = g.shipment?.packages?.find((p) => p.trackingCode);
@@ -119,12 +122,15 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       if (pkg?.trackingCode) order.trackingCode = pkg.trackingCode;
       if (pkg?.trackingUrl) order.trackingUrl = pkg.trackingUrl;
       if (order.status === "shipped" && !order.shippedAt) order.shippedAt = new Date();
+
+      // Email the buyer if the order is shipped and we've never sent the
+      // shipment email — covers orders that reached "shipped" without one going out.
+      const shouldEmail = order.status === "shipped" && !order.shipmentEmailSentAt;
+      if (shouldEmail) order.shipmentEmailSentAt = new Date();
       await order.save();
 
-      // First time this sync flips the order to shipped, email the buyer the
-      // tracking link — same as the Gelato webhook does automatically.
       let emailed = false;
-      if (order.status === "shipped" && !wasShipped) {
+      if (shouldEmail) {
         try {
           const [book, user] = await Promise.all([
             Book.findById(order.bookId).select("title").lean(),

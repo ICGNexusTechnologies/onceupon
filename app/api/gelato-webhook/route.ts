@@ -83,8 +83,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, ignored: "unknown order" });
   }
 
-  const wasShipped = order.status === "shipped" || order.status === "fulfilled";
-
   // Tracking can arrive under items[].fulfillments[] OR under shipment.packages[].
   const fulfillment = payload.items?.find((it) => it.fulfillments?.length)?.fulfillments?.[0];
   const pkg = payload.shipment?.packages?.find((p) => p.trackingCode);
@@ -97,10 +95,14 @@ export async function POST(req: NextRequest) {
 
   order.status = status;
   if (status === "shipped" && !order.shippedAt) order.shippedAt = new Date();
+
+  // Email the buyer the first time the order ships — tracked by a real sent-flag,
+  // not the status transition, so a prior manual sync can't suppress it.
+  const shouldEmail = status === "shipped" && !order.shipmentEmailSentAt;
+  if (shouldEmail) order.shipmentEmailSentAt = new Date();
   await order.save();
 
-  // Email the buyer the first time the order transitions to shipped.
-  if (status === "shipped" && !wasShipped) {
+  if (shouldEmail) {
     after(async () => {
       try {
         const [book, user] = await Promise.all([
