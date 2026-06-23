@@ -111,6 +111,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         fulfillmentStatus?: string;
         shipment?: { shipmentMethodName?: string; packages?: { trackingCode?: string; trackingUrl?: string }[] };
       };
+      const wasShipped = order.status === "shipped" || order.status === "fulfilled";
       const mapped = g.fulfillmentStatus ? mapGelatoStatus(g.fulfillmentStatus) : null;
       if (mapped) order.status = mapped;
       const pkg = g.shipment?.packages?.find((p) => p.trackingCode);
@@ -119,11 +120,40 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       if (pkg?.trackingUrl) order.trackingUrl = pkg.trackingUrl;
       if (order.status === "shipped" && !order.shippedAt) order.shippedAt = new Date();
       await order.save();
+
+      // First time this sync flips the order to shipped, email the buyer the
+      // tracking link — same as the Gelato webhook does automatically.
+      let emailed = false;
+      if (order.status === "shipped" && !wasShipped) {
+        try {
+          const [book, user] = await Promise.all([
+            Book.findById(order.bookId).select("title").lean(),
+            User.findById(order.userId).select("email").lean(),
+          ]);
+          if (user?.email) {
+            await sendShipmentEmail({
+              to: user.email,
+              bookId: String(order.bookId),
+              orderNumber: order.orderNumber,
+              bookTitle: book?.title ?? "",
+              carrier: order.carrier,
+              trackingCode: order.trackingCode,
+              trackingUrl: order.trackingUrl,
+            });
+            emailed = true;
+          }
+        } catch (err) {
+          console.error("shipment email on sync failed", err);
+        }
+      }
+
       return NextResponse.json({
         ok: true,
-        message: pkg?.trackingCode
-          ? `Synced — status ${g.fulfillmentStatus}, tracking ${pkg.trackingCode}`
-          : `Synced — status ${g.fulfillmentStatus} (no tracking yet)`,
+        message:
+          (pkg?.trackingCode
+            ? `Synced — status ${g.fulfillmentStatus}, tracking ${pkg.trackingCode}`
+            : `Synced — status ${g.fulfillmentStatus} (no tracking yet)`) +
+          (emailed ? " · shipment email sent" : ""),
       });
     }
 
