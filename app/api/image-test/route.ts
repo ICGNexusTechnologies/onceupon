@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
 
   try {
-    const { prompt } = await req.json();
+    const { prompt, model } = await req.json();
     const cleanPrompt = String(prompt || "").trim();
     if (cleanPrompt.length < 10) {
       return NextResponse.json({ error: "Enter a more descriptive prompt." }, { status: 400 });
@@ -21,11 +21,20 @@ export async function POST(req: NextRequest) {
     if (cleanPrompt.length > 3000) {
       return NextResponse.json({ error: "Prompt is too long." }, { status: 400 });
     }
+    // Only allow comparing a known short-list of fal models from the test page.
+    const ALLOWED = [
+      "fal-ai/nano-banana",
+      "fal-ai/recraft-v3",
+      "fal-ai/imagen4/preview",
+      "fal-ai/flux-pro/v1.1-ultra",
+      "fal-ai/flux/dev",
+    ];
+    const chosen = typeof model === "string" && ALLOWED.includes(model) ? model : undefined;
 
-    const imageUrl = await generateTestImage(cleanPrompt);
+    const imageUrl = await generateTestImage(cleanPrompt, chosen);
     return NextResponse.json({
       imageUrl,
-      model: process.env.FAL_TEXT_TO_IMAGE_MODEL || "fal-ai/nano-banana",
+      model: chosen || process.env.FAL_TEXT_TO_IMAGE_MODEL || "fal-ai/nano-banana",
     });
   } catch (err) {
     console.error("image-test error", err);

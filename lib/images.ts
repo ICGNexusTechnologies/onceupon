@@ -10,12 +10,20 @@
 const FAL_KEY = process.env.FAL_KEY || process.env.IMAGE_API_KEY;
 const TXT2IMG_MODEL = process.env.FAL_TEXT_TO_IMAGE_MODEL || "fal-ai/nano-banana";
 const EDIT_MODEL = process.env.FAL_IMAGE_EDIT_MODEL || "fal-ai/nano-banana/edit";
+// Optional: when set (e.g. "fal-ai/clarity-upscaler") every page is upscaled to
+// print resolution before upload. Off by default to keep per-book cost down.
+const UPSCALE_MODEL = process.env.FAL_UPSCALE_MODEL;
 const FAL_RUN_URL = "https://fal.run";
 const MAX_ATTEMPTS = 3;
 const REQUEST_TIMEOUT_MS = 110_000;
 
+// Appended to every illustration prompt to push for a premium, cohesive finish.
+const QUALITY =
+  "Award-winning professional children's picture-book art, masterful composition, cohesive harmonious color palette, soft depth and gentle rim lighting, expressive warmth, richly detailed, polished print-quality finish.";
+
 interface FalImageResult {
   images?: { url: string }[];
+  image?: { url: string };
 }
 
 function sleep(ms: number) {
@@ -48,7 +56,7 @@ async function falRun(model: string, input: Record<string, unknown>): Promise<st
       }
 
       const data = (await res.json()) as FalImageResult;
-      const out = data.images?.[0]?.url;
+      const out = data.images?.[0]?.url || data.image?.url;
       if (!out) throw new Error("fal.ai returned no image");
       return out;
     } catch (err) {
@@ -62,10 +70,31 @@ async function falRun(model: string, input: Record<string, unknown>): Promise<st
   throw new Error("fal.ai request failed");
 }
 
+/**
+ * Upscale a finished image to print resolution. No-op unless FAL_UPSCALE_MODEL
+ * is set. Never throws — a failed upscale falls back to the original so a book
+ * is never lost over sharpening.
+ */
+export async function upscaleImage(url: string): Promise<string> {
+  if (!UPSCALE_MODEL) return url;
+  try {
+    return await falRun(UPSCALE_MODEL, {
+      image_url: url,
+      scale_factor: 2,
+      creativity: 0.25, // stay faithful to the original art
+      resemblance: 0.85,
+      output_format: "png",
+    });
+  } catch (err) {
+    console.error("upscale failed, using original image", err);
+    return url;
+  }
+}
+
 /** One hero reference image on a clean background. */
 export async function generateHeroReference(characterSheet: string, artStyle: string): Promise<string> {
   return falRun(TXT2IMG_MODEL, {
-    prompt: `${characterSheet}. ${artStyle}. Full body character reference of one child, standing, friendly neutral pose, plain warm cream background, children's picture book illustration.`,
+    prompt: `${characterSheet}. ${artStyle}. Full body character reference of one child, standing, friendly neutral pose, plain warm cream background, children's picture book illustration. ${QUALITY}`,
     num_images: 1,
     aspect_ratio: "4:5",
     output_format: "png",
@@ -74,9 +103,9 @@ export async function generateHeroReference(characterSheet: string, artStyle: st
   });
 }
 
-/** Development preview for quickly evaluating the configured text-to-image model. */
-export async function generateTestImage(prompt: string): Promise<string> {
-  return falRun(TXT2IMG_MODEL, {
+/** Development preview for quickly evaluating an image model (optionally overriding it). */
+export async function generateTestImage(prompt: string, model?: string): Promise<string> {
+  return falRun(model || TXT2IMG_MODEL, {
     prompt,
     num_images: 1,
     aspect_ratio: "4:5",
@@ -95,7 +124,7 @@ export async function generatePageImage(
 ): Promise<string> {
   return falRun(EDIT_MODEL, {
     image_urls: [referenceUrl],
-    prompt: `Use the child in the reference image as the same recurring hero. Preserve this character exactly: ${characterSheet}. Keep their face, hair, skin tone, outfit, and proportions consistent. New scene: ${imagePrompt}. ${artStyle}. Children's picture book illustration, full-bleed portrait scene. Keep all faces, characters, and important story objects in the upper 70% of the composition. Reserve the lower 30% as a calm, low-detail area with no faces, hands, text, letters, labels, logos, or essential objects so readable story text can be overlaid there.`,
+    prompt: `Use the child in the reference image as the same recurring hero. Preserve this character exactly: ${characterSheet}. Keep their face, hair, skin tone, outfit, and proportions consistent. New scene: ${imagePrompt}. ${artStyle}. ${QUALITY} Children's picture book illustration, full-bleed portrait scene. Keep all faces, characters, and important story objects in the upper 70% of the composition. Reserve the lower 30% as a calm, low-detail area with no faces, hands, text, letters, labels, logos, or essential objects so readable story text can be overlaid there.`,
     num_images: 1,
     aspect_ratio: "4:5",
     output_format: "png",
@@ -112,7 +141,7 @@ export async function generateCoverImage(
   title: string
 ): Promise<string> {
   return falRun(TXT2IMG_MODEL, {
-    prompt: `${characterSheet}. ${artStyle}. Book cover illustration: the child hero front and center in ${world}, joyful, magical lighting, space at the bottom for the title "${title}". Children's picture book cover, full-bleed.`,
+    prompt: `${characterSheet}. ${artStyle}. Book cover illustration: the child hero front and center in ${world}, joyful, magical lighting, space at the bottom for the title "${title}". ${QUALITY} Children's picture book cover, full-bleed.`,
     num_images: 1,
     aspect_ratio: "4:5",
     output_format: "png",

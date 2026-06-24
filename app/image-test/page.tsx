@@ -19,12 +19,11 @@ export default function ImageTestPage() {
       const res = await fetch("/api/image-test", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, model }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Image generation failed.");
       setImageUrl(data.imageUrl);
-      setModel(data.model);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Image generation failed.");
     } finally {
@@ -39,6 +38,17 @@ export default function ImageTestPage() {
         <p style={{ color: "var(--ink-soft)", marginBottom: 24 }}>
           Generate one portrait illustration using <b>{model}</b>. Each click uses fal.ai credits.
         </p>
+
+        <div className="field">
+          <label htmlFor="image-model">Model</label>
+          <select id="image-model" value={model} onChange={(e) => setModel(e.target.value)}>
+            <option value="fal-ai/nano-banana">nano-banana (current — fast/cheap)</option>
+            <option value="fal-ai/recraft-v3">Recraft v3 (top illustration quality)</option>
+            <option value="fal-ai/imagen4/preview">Imagen 4 (Google, premium)</option>
+            <option value="fal-ai/flux-pro/v1.1-ultra">Flux Pro Ultra (premium)</option>
+            <option value="fal-ai/flux/dev">Flux dev (cheaper premium)</option>
+          </select>
+        </div>
 
         <div className="field">
           <label htmlFor="image-prompt">Image prompt</label>

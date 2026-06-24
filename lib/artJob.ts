@@ -1,7 +1,7 @@
 import { dbConnect } from "@/lib/db";
 import Book from "@/models/Book";
 import Order from "@/models/Order";
-import { generateHeroReference, generatePageImage } from "@/lib/images";
+import { generateHeroReference, generatePageImage, upscaleImage } from "@/lib/images";
 import { uploadImage, uploadPdf } from "@/lib/cloudinary";
 import { buildBookPdf } from "@/lib/pdf";
 import { submitOrderToGelato } from "@/lib/gelato";
@@ -46,7 +46,9 @@ export async function runArtJob(
               book.artStyle,
               page.imagePrompt
             );
-            page.imageUrl = await uploadImage(raw, `book-${book._id}-p${page.pageNumber}`);
+            // Upscale to print resolution when FAL_UPSCALE_MODEL is configured (no-op otherwise).
+            const finished = await upscaleImage(raw);
+            page.imageUrl = await uploadImage(finished, `book-${book._id}-p${page.pageNumber}`);
           })
         );
         await book.save(); // checkpoint after each batch so progress is resumable

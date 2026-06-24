@@ -22,7 +22,7 @@ export const ART_STYLES: ArtStyle[] = [
     emoji: "🎨",
     description: "Gentle washes and warm, cozy colors",
     prompt:
-      "Soft watercolor children's picture-book illustration, gentle washes, warm cozy palette, subtle paper texture, hand-painted feel.",
+      "Soft watercolor children's picture-book illustration, delicate translucent washes, layered wet-on-wet blooms, warm cozy palette, subtle cold-press paper texture, gentle diffused lighting, hand-painted artisan feel.",
   },
   {
     key: "storybook",
@@ -30,7 +30,7 @@ export const ART_STYLES: ArtStyle[] = [
     emoji: "📖",
     description: "Rich, painterly, timeless fairy-tale look",
     prompt:
-      "Classic hand-painted storybook illustration, rich detail, painterly textures, warm lighting, timeless fairy-tale feel.",
+      "Classic hand-painted storybook illustration, rich gouache-and-oil detail, expressive painterly brushwork, warm golden lighting, deep atmospheric color, timeless fairy-tale craftsmanship like a beloved vintage picture book.",
   },
   {
     key: "cartoon",
@@ -38,7 +38,7 @@ export const ART_STYLES: ArtStyle[] = [
     emoji: "🌈",
     description: "Bold outlines and bright, fun colors",
     prompt:
-      "Bright playful cartoon illustration, bold clean outlines, vivid saturated colors, cheerful and fun, flat shading.",
+      "Bright modern cartoon illustration, bold confident clean outlines, vivid saturated colors, smooth flat shading with soft gradients, expressive friendly characters, polished animation-studio finish.",
   },
   {
     key: "papercut",
@@ -46,7 +46,7 @@ export const ART_STYLES: ArtStyle[] = [
     emoji: "✂️",
     description: "Layered paper collage with soft shadows",
     prompt:
-      "Layered paper-cut collage illustration, flat crafted shapes, soft drop shadows, handmade construction-paper look.",
+      "Layered paper-cut collage illustration, crisp crafted shapes, tactile construction-paper texture, soft realistic drop shadows, dimensional handmade depth, warm balanced palette.",
   },
   {
     key: "crayon",
@@ -54,7 +54,7 @@ export const ART_STYLES: ArtStyle[] = [
     emoji: "🖍️",
     description: "Soft hand-drawn, childlike charm",
     prompt:
-      "Hand-drawn crayon and colored-pencil illustration, soft strokes, gentle textures, whimsical childlike charm.",
+      "Hand-drawn crayon and colored-pencil illustration, soft waxy layered strokes, gentle grainy texture, warm childlike charm, cozy sketchbook warmth, lovingly imperfect handmade lines.",
   },
   {
     key: "dreamy3d",
@@ -62,7 +62,7 @@ export const ART_STYLES: ArtStyle[] = [
     emoji: "✨",
     description: "Soft rounded characters, gentle lighting",
     prompt:
-      "Soft 3D rendered illustration, rounded friendly characters, gentle warm lighting, smooth surfaces, cozy and modern.",
+      "Soft 3D-rendered illustration, rounded friendly characters, gentle volumetric lighting, smooth tactile surfaces, subsurface glow, cozy modern Pixar-like warmth, shallow depth of field.",
   },
 ];
 
