@@ -5,8 +5,9 @@ import Book from "@/models/Book";
 import User from "@/models/User";
 import { getAdminSession } from "@/lib/admin";
 import { getStripe } from "@/lib/stripe";
-import { submitOrderToGelato, mapGelatoStatus } from "@/lib/gelato";
-import { sendOrderConfirmationEmail, sendShipmentEmail, sendDeliveryEmail } from "@/lib/email";
+import { submitOrderToGelato } from "@/lib/gelato";
+import { sendOrderConfirmationEmail, sendShipmentEmail } from "@/lib/email";
+import { syncOrderFromGelato } from "@/lib/syncOrder";
 
 export const maxDuration = 60;
 
@@ -102,74 +103,19 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     }
 
     if (action === "sync-gelato") {
-      if (!order.gelatoOrderId) return NextResponse.json({ error: "No Gelato order to sync." }, { status: 400 });
-      const apiKey = process.env.GELATO_API_KEY;
-      if (!apiKey) return NextResponse.json({ error: "Gelato API key not configured." }, { status: 400 });
-      const res = await fetch(`https://order.gelatoapis.com/v4/orders/${order.gelatoOrderId}`, {
-        headers: { "X-API-KEY": apiKey },
-      });
-      if (!res.ok) {
-        return NextResponse.json({ error: `Gelato lookup failed (${res.status}).` }, { status: 502 });
-      }
-      const g = (await res.json()) as {
-        fulfillmentStatus?: string;
-        shipment?: { shipmentMethodName?: string; packages?: { trackingCode?: string; trackingUrl?: string }[] };
-      };
-      const mapped = g.fulfillmentStatus ? mapGelatoStatus(g.fulfillmentStatus) : null;
-      if (mapped) order.status = mapped;
-      const pkg = g.shipment?.packages?.find((p) => p.trackingCode);
-      if (g.shipment?.shipmentMethodName) order.carrier = g.shipment.shipmentMethodName;
-      if (pkg?.trackingCode) order.trackingCode = pkg.trackingCode;
-      if (pkg?.trackingUrl) order.trackingUrl = pkg.trackingUrl;
-      if (order.status === "shipped" && !order.shippedAt) order.shippedAt = new Date();
-
-      // Email the buyer if the order just reached shipped/delivered and we've
-      // never sent that email — covers orders that got there without one going out.
-      const emailShipped = order.status === "shipped" && !order.shipmentEmailSentAt;
-      const emailDelivered = order.status === "fulfilled" && !order.deliveryEmailSentAt;
-      if (emailShipped) order.shipmentEmailSentAt = new Date();
-      if (emailDelivered) order.deliveryEmailSentAt = new Date();
-      await order.save();
-
-      let emailNote = "";
-      if (emailShipped || emailDelivered) {
-        try {
-          const [book, user] = await Promise.all([
-            Book.findById(order.bookId).select("title").lean(),
-            User.findById(order.userId).select("email").lean(),
-          ]);
-          if (user?.email && emailShipped) {
-            await sendShipmentEmail({
-              to: user.email,
-              bookId: String(order.bookId),
-              orderNumber: order.orderNumber,
-              bookTitle: book?.title ?? "",
-              carrier: order.carrier,
-              trackingCode: order.trackingCode,
-              trackingUrl: order.trackingUrl,
-            });
-            emailNote = " · shipment email sent";
-          }
-          if (user?.email && emailDelivered) {
-            await sendDeliveryEmail({
-              to: user.email,
-              bookId: String(order.bookId),
-              orderNumber: order.orderNumber,
-              bookTitle: book?.title ?? "",
-            });
-            emailNote = " · delivery email sent";
-          }
-        } catch (err) {
-          console.error("shipment/delivery email on sync failed", err);
-        }
-      }
-
+      const r = await syncOrderFromGelato(order);
+      if (!r.ok) return NextResponse.json({ error: r.error || "Sync failed." }, { status: 502 });
+      const emailNote = r.emailedDelivery
+        ? " · delivery email sent"
+        : r.emailedShipment
+          ? " · shipment email sent"
+          : "";
       return NextResponse.json({
         ok: true,
         message:
-          (pkg?.trackingCode
-            ? `Synced — status ${g.fulfillmentStatus}, tracking ${pkg.trackingCode}`
-            : `Synced — status ${g.fulfillmentStatus} (no tracking yet)`) + emailNote,
+          (r.trackingCode
+            ? `Synced — status ${r.fulfillmentStatus}, tracking ${r.trackingCode}`
+            : `Synced — status ${r.fulfillmentStatus} (no tracking yet)`) + emailNote,
       });
     }
 
