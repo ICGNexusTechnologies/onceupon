@@ -6,7 +6,7 @@ import Order from "@/models/Order";
 import Book from "@/models/Book";
 import User from "@/models/User";
 import { mapGelatoStatus } from "@/lib/gelato";
-import { sendShipmentEmail } from "@/lib/email";
+import { sendShipmentEmail, sendDeliveryEmail } from "@/lib/email";
 
 /**
  * Inbound Gelato webhook: receives fulfillment status updates and reflects them
@@ -67,7 +67,8 @@ export async function POST(req: NextRequest) {
 
   // Gelato sends several event types; we only care about fulfillment status changes.
   const gelatoOrderId = payload.orderId ?? payload.order?.id;
-  const gelatoStatus = payload.fulfillmentStatus ?? payload.status;
+  // Delivery arrives on a separate event/field; fold it in so "delivered" registers.
+  const gelatoStatus = payload.fulfillmentStatus ?? payload.status ?? payload.deliveryStatus;
   if (!gelatoOrderId || !gelatoStatus) {
     return NextResponse.json({ received: true, ignored: "missing orderId/status" });
   }
@@ -96,23 +97,29 @@ export async function POST(req: NextRequest) {
   order.status = status;
   if (status === "shipped" && !order.shippedAt) order.shippedAt = new Date();
 
-  // Email the buyer the first time the order ships — tracked by a real sent-flag,
-  // not the status transition, so a prior manual sync can't suppress it.
-  const shouldEmail = status === "shipped" && !order.shipmentEmailSentAt;
-  if (shouldEmail) order.shipmentEmailSentAt = new Date();
+  // Email the buyer the first time the order ships or is delivered — tracked by
+  // real sent-flags, not the status transition, so a prior manual sync can't
+  // suppress them.
+  const emailShipped = status === "shipped" && !order.shipmentEmailSentAt;
+  const emailDelivered = status === "fulfilled" && !order.deliveryEmailSentAt;
+  if (emailShipped) order.shipmentEmailSentAt = new Date();
+  if (emailDelivered) order.deliveryEmailSentAt = new Date();
   await order.save();
 
-  if (shouldEmail) {
+  if (emailShipped || emailDelivered) {
+    const orderId = String(order._id);
+    const bookId = String(order.bookId);
     after(async () => {
       try {
         const [book, user] = await Promise.all([
           Book.findById(order.bookId).select("title").lean(),
           User.findById(order.userId).select("email").lean(),
         ]);
-        if (user?.email) {
+        if (!user?.email) return;
+        if (emailShipped) {
           await sendShipmentEmail({
             to: user.email,
-            bookId: String(order.bookId),
+            bookId,
             orderNumber: order.orderNumber,
             bookTitle: book?.title ?? "",
             carrier: order.carrier,
@@ -120,8 +127,16 @@ export async function POST(req: NextRequest) {
             trackingUrl: order.trackingUrl,
           });
         }
+        if (emailDelivered) {
+          await sendDeliveryEmail({
+            to: user.email,
+            bookId,
+            orderNumber: order.orderNumber,
+            bookTitle: book?.title ?? "",
+          });
+        }
       } catch (err) {
-        console.error("shipment email failed", err);
+        console.error("shipment/delivery email failed", orderId, err);
       }
     });
   }
@@ -144,6 +159,7 @@ interface GelatoEvent {
   order?: { id?: string };
   fulfillmentStatus?: string;
   status?: string;
+  deliveryStatus?: string;
   items?: GelatoItem[];
   shipment?: {
     shipmentMethodName?: string;

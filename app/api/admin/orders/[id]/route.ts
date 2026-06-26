@@ -6,7 +6,7 @@ import User from "@/models/User";
 import { getAdminSession } from "@/lib/admin";
 import { getStripe } from "@/lib/stripe";
 import { submitOrderToGelato, mapGelatoStatus } from "@/lib/gelato";
-import { sendOrderConfirmationEmail, sendShipmentEmail } from "@/lib/email";
+import { sendOrderConfirmationEmail, sendShipmentEmail, sendDeliveryEmail } from "@/lib/email";
 
 export const maxDuration = 60;
 
@@ -123,20 +123,22 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       if (pkg?.trackingUrl) order.trackingUrl = pkg.trackingUrl;
       if (order.status === "shipped" && !order.shippedAt) order.shippedAt = new Date();
 
-      // Email the buyer if the order is shipped and we've never sent the
-      // shipment email — covers orders that reached "shipped" without one going out.
-      const shouldEmail = order.status === "shipped" && !order.shipmentEmailSentAt;
-      if (shouldEmail) order.shipmentEmailSentAt = new Date();
+      // Email the buyer if the order just reached shipped/delivered and we've
+      // never sent that email — covers orders that got there without one going out.
+      const emailShipped = order.status === "shipped" && !order.shipmentEmailSentAt;
+      const emailDelivered = order.status === "fulfilled" && !order.deliveryEmailSentAt;
+      if (emailShipped) order.shipmentEmailSentAt = new Date();
+      if (emailDelivered) order.deliveryEmailSentAt = new Date();
       await order.save();
 
-      let emailed = false;
-      if (shouldEmail) {
+      let emailNote = "";
+      if (emailShipped || emailDelivered) {
         try {
           const [book, user] = await Promise.all([
             Book.findById(order.bookId).select("title").lean(),
             User.findById(order.userId).select("email").lean(),
           ]);
-          if (user?.email) {
+          if (user?.email && emailShipped) {
             await sendShipmentEmail({
               to: user.email,
               bookId: String(order.bookId),
@@ -146,10 +148,19 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
               trackingCode: order.trackingCode,
               trackingUrl: order.trackingUrl,
             });
-            emailed = true;
+            emailNote = " · shipment email sent";
+          }
+          if (user?.email && emailDelivered) {
+            await sendDeliveryEmail({
+              to: user.email,
+              bookId: String(order.bookId),
+              orderNumber: order.orderNumber,
+              bookTitle: book?.title ?? "",
+            });
+            emailNote = " · delivery email sent";
           }
         } catch (err) {
-          console.error("shipment email on sync failed", err);
+          console.error("shipment/delivery email on sync failed", err);
         }
       }
 
@@ -158,8 +169,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         message:
           (pkg?.trackingCode
             ? `Synced — status ${g.fulfillmentStatus}, tracking ${pkg.trackingCode}`
-            : `Synced — status ${g.fulfillmentStatus} (no tracking yet)`) +
-          (emailed ? " · shipment email sent" : ""),
+            : `Synced — status ${g.fulfillmentStatus} (no tracking yet)`) + emailNote,
       });
     }
 

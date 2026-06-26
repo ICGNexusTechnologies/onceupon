@@ -203,6 +203,39 @@ export async function sendShipmentEmail({
   });
 }
 
+export async function sendDeliveryEmail({
+  to,
+  bookId,
+  orderNumber,
+  bookTitle,
+}: {
+  to: string;
+  bookId: string;
+  orderNumber?: string;
+  bookTitle: string;
+}) {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("RESEND_API_KEY not set — skipping delivery email to", to);
+    return;
+  }
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `Your Once Uponly book has arrived${bookTitle ? ` — ${bookTitle}` : ""} 📦`,
+    html: `
+      <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:36px 24px;background:#FBF4E6;border-radius:16px">
+        <h1 style="color:#3A2A5C;font-size:1.8rem;margin:0 0 8px">It's here! 📦</h1>
+        <p style="color:#5A4E6E;margin:0 0 24px">${bookTitle ? `<strong>${bookTitle}</strong>` : "Your book"} has been delivered.${orderNumber ? ` (Order ${orderNumber})` : ""} We hope it brings a few magical bedtimes. ✨</p>
+        <p style="color:#5A4E6E;margin:0 0 24px">If you loved it, we'd be so grateful for a quick review — and if anything isn't perfect, just reply to this email and we'll make it right.</p>
+        <a href="${APP_URL()}/orders/${bookId}" style="display:inline-block;background:#E0654E;color:#fff;padding:14px 28px;border-radius:999px;font-weight:700;text-decoration:none">View your order →</a>
+        <p style="color:#9B92B3;font-size:.8rem;margin-top:28px">Once Uponly · Personalized storybooks for every child</p>
+      </div>
+    `,
+  });
+}
+
 export async function sendOrderConfirmationEmail({
   to,
   bookId,
