@@ -152,6 +152,23 @@ export async function buildBookPdf(book: IBook): Promise<Buffer> {
   )}.`;
   drawCenteredLines(dedicationPage, wrapText(details, bodyFont, 12, PAGE_WIDTH - 160), bodyFont, 12, 18, 220, MARIGOLD);
 
+  // Copyright / colophon page — makes the book read as professionally published.
+  const colophonPage = pdf.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  colophonPage.drawRectangle({ x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT, color: CREAM });
+  drawBrandMark(colophonPage, labelFont, 652);
+  const year = new Date().getFullYear();
+  const colophonLines = [
+    "Once Uponly",
+    `A one-of-a-kind story made just for ${safePdfText(book.child.name)}.`,
+    "",
+    `Copyright (c) ${year} Once Uponly. All rights reserved.`,
+    "No part of this book may be reproduced without permission.",
+    "",
+    `First edition - ${year}`,
+    "onceuponly.com",
+  ];
+  drawCenteredLines(colophonPage, colophonLines, bodyFont, 12, 22, 430);
+
   for (const storyPage of book.pages) {
     if (!storyPage.imageUrl) {
       throw new Error(`Page ${storyPage.pageNumber} has no illustration`);

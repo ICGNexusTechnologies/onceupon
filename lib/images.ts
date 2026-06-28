@@ -124,7 +124,7 @@ export async function generatePageImage(
 ): Promise<string> {
   return falRun(EDIT_MODEL, {
     image_urls: [referenceUrl],
-    prompt: `Use the child in the reference image as the same recurring hero. Preserve this character exactly: ${characterSheet}. Keep their face, hair, skin tone, outfit, and proportions consistent. New scene: ${imagePrompt}. ${artStyle}. ${QUALITY} Children's picture book illustration, full-bleed portrait scene. Keep all faces, characters, and important story objects in the upper 70% of the composition. Reserve the lower 30% as a calm, low-detail area with no faces, hands, text, letters, labels, logos, or essential objects so readable story text can be overlaid there.`,
+    prompt: `Use the child in the reference image as the same recurring hero. Preserve this character exactly: ${characterSheet}. Keep their face, hair, skin tone, outfit, and proportions consistent. New scene: ${imagePrompt}. ${artStyle}. ${QUALITY} Children's picture book illustration as ONE single continuous full-bleed scene that fills the entire frame edge to edge — no panels, no grid, no collage, no framed insets, no borders, and no blank or white margins. Any prop, clothing, or object colors named in the scene must be drawn exactly as described. Keep all faces, characters, and important story objects in the upper 70% of the composition. Reserve the lower 30% as a calm, low-detail area with no faces, hands, text, letters, labels, logos, or essential objects so readable story text can be overlaid there.`,
     num_images: 1,
     aspect_ratio: "4:5",
     output_format: "png",

@@ -267,6 +267,29 @@ export async function buildPrintPdf(
     `May this adventure remind you that your curiosity, courage, and imagination can take you anywhere.`;
   drawCenteredLines(dedPage, cx, wrapText(dedText, italicFont, 17, PAGE_W - SAFE * 3), italicFont, 17, 25, PAGE_H * 0.45, CREAM);
 
+  // COPYRIGHT / COLOPHON PAGE
+  const colophon = addPrintPage(pdf);
+  fill(colophon);
+  const year = new Date().getFullYear();
+  drawCenteredLines(
+    colophon,
+    cx,
+    [
+      "Once Uponly",
+      `A one-of-a-kind story made just for ${safePdfText(book.child.name)}.`,
+      "",
+      `Copyright (c) ${year} Once Uponly. All rights reserved.`,
+      "No part of this book may be reproduced without permission.",
+      "",
+      `First edition - ${year}`,
+      "onceuponly.com",
+    ],
+    bodyFont,
+    11,
+    20,
+    PAGE_H * 0.52
+  );
+
   // STORY PAGES
   for (const sp of book.pages) {
     if (!sp.imageUrl) throw new Error(`Page ${sp.pageNumber} has no illustration`);
