@@ -54,7 +54,7 @@ export const ART_STYLES: ArtStyle[] = [
     emoji: "🖍️",
     description: "Soft hand-drawn, childlike charm",
     prompt:
-      "Hand-drawn crayon and colored-pencil illustration, soft waxy layered strokes, gentle grainy texture, warm childlike charm, cozy sketchbook warmth, lovingly imperfect handmade lines.",
+      "Hand-drawn crayon and colored-pencil illustration with visible waxy crayon and colored-pencil strokes, uneven childlike hand-drawn linework, matte sketchbook paper texture, naive and imperfect, deliberately unpolished and rough, warm childlike charm, lovingly imperfect handmade lines — not digital, not smooth, not glossy, not painterly.",
   },
   {
     key: "dreamy3d",

@@ -16,6 +16,11 @@ export default function TermsPage() {
         Once Uponly creates personalized children&rsquo;s storybooks, available as a digital PDF or a
         printed softcover or hardcover book, using the details you provide.
       </p>
+      <p style={{ color: "var(--ink-soft)", marginTop: 12 }}>
+        Each book&rsquo;s story and illustrations are generated using artificial intelligence (AI)
+        based on the details you provide, then assembled into your book. Because each book is
+        uniquely AI-generated, results may vary and may contain minor imperfections.
+      </p>
 
       <h3 style={{ color: "var(--plum)", marginTop: 28 }}>Your account</h3>
       <p style={{ color: "var(--ink-soft)" }}>

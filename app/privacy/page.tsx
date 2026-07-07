@@ -25,7 +25,9 @@ export default function PrivacyPage() {
       <h3 style={{ color: "var(--plum)", marginTop: 28 }}>Who we share with</h3>
       <p style={{ color: "var(--ink-soft)" }}>
         Service providers that make the product work — payment processing, book printing and
-        shipping, email delivery, and hosting. We do not sell your personal data.
+        shipping, email delivery, hosting, and the AI providers that generate your book&rsquo;s story
+        and illustrations from the details you submit. These providers process your inputs solely to
+        create your book. We do not sell your personal data.
       </p>
 
       <h3 style={{ color: "var(--plum)", marginTop: 28 }}>Contact</h3>
