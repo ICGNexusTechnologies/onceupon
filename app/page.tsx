@@ -213,7 +213,7 @@ export default async function Home() {
               <Link href="/terms">Terms</Link>
             </div>
           </div>
-          <div className="foot-bottom">© 2026 Once Uponly. Made with love (and a little magic).</div>
+          <div className="foot-bottom">© 2026 Once Uponly. Made with love.</div>
         </div>
       </footer>
     </div>
