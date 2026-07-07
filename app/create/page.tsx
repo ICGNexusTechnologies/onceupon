@@ -18,7 +18,7 @@ const WORLDS = [
   { em: "🏙️", label: "Big city" },
 ];
 const TONES = ["Magical", "Funny & silly", "Cozy & gentle", "Big adventure"];
-const TOTAL = 7;
+const TOTAL = 8;
 const LOAD_MSGS = [
   "Imagining the world…",
   "Writing page by page…",
@@ -44,6 +44,7 @@ export default function CreateWizard() {
   const [world, setWorld] = useState(WORLDS[0].label);
   const [tone, setTone] = useState(TONES[0]);
   const [artStyle, setArtStyle] = useState(DEFAULT_ART_STYLE.key);
+  const [storyDescription, setStoryDescription] = useState("");
   const [language, setLanguage] = useState(DEFAULT_LANGUAGE);
   const [dedication, setDedication] = useState("");
 
@@ -88,6 +89,7 @@ export default function CreateWizard() {
           world,
           tone,
           artStyle,
+          storyDescription: storyDescription.trim(),
           language,
           dedication: dedication.trim(),
         }),
@@ -276,6 +278,23 @@ export default function CreateWizard() {
 
         {step === 6 && (
           <div className="fade-in">
+            <h2 className="wiz-q">Describe the story</h2>
+            <p className="wiz-sub">Share any plot idea, special character, place, or moment you want included.</p>
+            <div className="field">
+              <textarea
+                value={storyDescription}
+                onChange={(e) => setStoryDescription(e.target.value)}
+                placeholder="e.g. Maya finds a tiny moon key and helps a shy dragon get home before bedtime."
+              />
+            </div>
+            <p style={{ color: "var(--ink-soft)", fontSize: ".88rem" }}>
+              Optional — leave this blank if you want us to surprise you.
+            </p>
+          </div>
+        )}
+
+        {step === 7 && (
+          <div className="fade-in">
             <h2 className="wiz-q">Add a personal touch</h2>
             <p className="wiz-sub">A dedication printed on the first page (optional), then review.</p>
             <div className="field">
@@ -307,6 +326,10 @@ export default function CreateWizard() {
               <div>
                 <b>Mood</b>
                 <span>{tone}</span>
+              </div>
+              <div>
+                <b>Story idea</b>
+                <span>{storyDescription.trim() || "Surprise me"}</span>
               </div>
               <div>
                 <b>Art style</b>

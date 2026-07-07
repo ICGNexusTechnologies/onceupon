@@ -274,7 +274,7 @@ export default function ReviewsPage() {
               <a>Contact</a>
             </div>
           </div>
-          <div className="foot-bottom">© 2026 Once Uponly. Made with love (and a little magic).</div>
+          <div className="foot-bottom">© 2026 Once Uponly. Made with love.</div>
         </div>
       </footer>
     </div>

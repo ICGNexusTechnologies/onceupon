@@ -25,6 +25,7 @@ export interface IBook {
   value: string;
   world: string;
   tone: string;
+  storyDescription?: string;
   language: string;
   characterSheet: string;
   artStyle: string;
@@ -65,6 +66,7 @@ const BookSchema = new Schema<IBook>({
   value: String,
   world: String,
   tone: String,
+  storyDescription: String,
   language: { type: String, default: "en" },
   characterSheet: String,
   artStyle: String,

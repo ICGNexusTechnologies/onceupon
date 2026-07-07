@@ -18,6 +18,7 @@ export interface StoryInput {
   value: string;
   world: string;
   tone: string;
+  storyDescription?: string;
   dedication: string;
   /** Buyer-chosen illustration style (resolved prompt sentence). */
   artStyle: string;
@@ -127,6 +128,7 @@ export async function generateStory(input: StoryInput): Promise<StoryResult> {
     `Child: ${input.name}, age ${input.age}. Hair color ${input.hairColor}, skin tone ${input.skinTone}, ` +
     `outfit color ${input.outfitColor}. Loves: ${input.loves}. Story celebrates: ${input.value}. ` +
     `World: ${input.world}. Mood: ${input.tone}.` +
+    (input.storyDescription ? ` Parent's story description to incorporate: ${input.storyDescription}.` : "") +
     ` Illustration style (use this exact style for artStyle): ${input.artStyle}` +
     (input.dedication ? ` Dedication: ${input.dedication}` : "") +
     languageLine;

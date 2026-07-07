@@ -16,7 +16,21 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, age, hairColor, skinTone, outfitColor, loves, value, world, tone, dedication, artStyle, language } = body;
+    const {
+      name,
+      age,
+      hairColor,
+      skinTone,
+      outfitColor,
+      loves,
+      value,
+      world,
+      tone,
+      storyDescription,
+      dedication,
+      artStyle,
+      language,
+    } = body;
     if (!name || !loves) {
       return NextResponse.json({ error: "Name and loves are required." }, { status: 400 });
     }
@@ -40,6 +54,12 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    if (storyDescription && !(await moderateLoves(String(storyDescription)))) {
+      return NextResponse.json(
+        { error: "Please keep the story description child-friendly." },
+        { status: 400 }
+      );
+    }
 
     const story = await generateStory({
       name: String(name),
@@ -51,6 +71,7 @@ export async function POST(req: NextRequest) {
       value: String(value || "Bravery"),
       world: String(world || "Magic forest"),
       tone: String(tone || "Magical"),
+      storyDescription: String(storyDescription || ""),
       dedication: String(dedication || ""),
       artStyle: resolveArtStyle(artStyle),
       language: lang.code,
@@ -71,6 +92,7 @@ export async function POST(req: NextRequest) {
       value,
       world,
       tone,
+      storyDescription,
       language: lang.code,
       characterSheet: story.characterSheet,
       artStyle: story.artStyle,
