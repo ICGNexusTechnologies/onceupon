@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/db";
 import User from "@/models/User";
 import { signToken, setSessionCookie } from "@/lib/auth";
+import { MAX_PASSWORD_LENGTH, isValidPasswordLength } from "@/lib/password";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,8 +12,11 @@ export async function POST(req: NextRequest) {
     if (!token || !email || !password) {
       return NextResponse.json({ error: "Invalid reset request." }, { status: 400 });
     }
-    if (password.length < 8) {
-      return NextResponse.json({ error: "Please use a password of at least 8 characters." }, { status: 400 });
+    if (!isValidPasswordLength(password)) {
+      return NextResponse.json(
+        { error: `Please use a password between 8 and ${MAX_PASSWORD_LENGTH} characters.` },
+        { status: 400 }
+      );
     }
 
     await dbConnect();

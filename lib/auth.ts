@@ -65,7 +65,11 @@ export async function getSession(): Promise<SessionPayload | null> {
       return null;
     }
   } catch {
-    // On a DB hiccup, don't lock everyone out — the signature is already valid.
+    // Deliberate fail-open tradeoff: on a DB hiccup, keep valid-signature
+    // sessions working instead of locking everyone out. This means
+    // sessionsValidAfter revocation ("log out all devices") is best-effort
+    // until MongoDB is reachable again; admin routes still enforce admin/MFA
+    // checks after this session read.
   }
 
   return { userId: payload.userId, email: payload.email, name: payload.name };

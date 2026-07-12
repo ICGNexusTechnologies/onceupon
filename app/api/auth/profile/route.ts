@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/db";
 import { getSession, signToken, setSessionCookie } from "@/lib/auth";
 import User from "@/models/User";
+import { MAX_PASSWORD_LENGTH } from "@/lib/password";
 
 export async function PATCH(req: NextRequest) {
   const session = await getSession();
@@ -23,7 +24,11 @@ export async function PATCH(req: NextRequest) {
       if (normalized !== user.email) {
         // Changing the email requires the current password — otherwise a hijacked
         // session could change the email and take over the account via reset.
-        if (!password || !(await bcrypt.compare(password, user.passwordHash))) {
+        if (
+          typeof password !== "string" ||
+          password.length > MAX_PASSWORD_LENGTH ||
+          !(await bcrypt.compare(password, user.passwordHash))
+        ) {
           return NextResponse.json(
             { error: "Enter your current password to change your email.", code: "PASSWORD_REQUIRED" },
             { status: 401 }

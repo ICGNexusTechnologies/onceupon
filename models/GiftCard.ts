@@ -4,7 +4,7 @@ export interface IGiftCard {
   _id: mongoose.Types.ObjectId;
   code: string;
   amountCents: number;
-  status: "pending" | "active" | "redeemed";
+  status: "pending" | "active" | "reserved" | "redeemed";
   purchaserEmail: string;
   recipientEmail: string;
   recipientName: string;
@@ -12,6 +12,8 @@ export interface IGiftCard {
   redeemedByUserId?: mongoose.Types.ObjectId;
   redeemedBookId?: mongoose.Types.ObjectId;
   redeemedAt?: Date;
+  redemptionStripeSessionId?: string;
+  redemptionExpiresAt?: Date;
   stripeSessionId?: string;
   createdAt: Date;
 }
@@ -27,6 +29,8 @@ const GiftCardSchema = new Schema<IGiftCard>({
   redeemedByUserId: { type: Schema.Types.ObjectId, ref: "User" },
   redeemedBookId: { type: Schema.Types.ObjectId, ref: "Book" },
   redeemedAt: Date,
+  redemptionStripeSessionId: String,
+  redemptionExpiresAt: Date,
   stripeSessionId: String,
   createdAt: { type: Date, default: Date.now },
 });

@@ -6,6 +6,7 @@ import { signToken, setSessionCookie } from "@/lib/auth";
 import { signMfaChallenge } from "@/lib/mfa";
 import { isSuperAdminEmail } from "@/lib/admin";
 import { rateLimit, clientIp } from "@/lib/rateLimit";
+import { MAX_PASSWORD_LENGTH } from "@/lib/password";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,8 +21,18 @@ export async function POST(req: NextRequest) {
     if (!email || !password) {
       return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
     }
+    const normalized = String(email).trim().toLowerCase();
+    if (!(await rateLimit(`login-account:${normalized}`, 10, 600)).ok) {
+      return NextResponse.json(
+        { error: "Too many attempts. Please wait a few minutes and try again." },
+        { status: 429 }
+      );
+    }
+    if (typeof password !== "string" || password.length > MAX_PASSWORD_LENGTH) {
+      return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
+    }
     await dbConnect();
-    const user = await User.findOne({ email: String(email).trim().toLowerCase() });
+    const user = await User.findOne({ email: normalized });
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
     }

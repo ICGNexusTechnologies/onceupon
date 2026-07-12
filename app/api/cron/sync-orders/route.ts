@@ -21,6 +21,9 @@ export async function GET(req: NextRequest) {
     if (provided !== secret) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+  } else if (process.env.NODE_ENV === "production") {
+    console.error("CRON_SECRET is not set — rejecting cron sync in production.");
+    return NextResponse.json({ error: "Cron not configured." }, { status: 503 });
   }
 
   await dbConnect();

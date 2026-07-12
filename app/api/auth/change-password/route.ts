@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import User from "@/models/User";
+import { MAX_PASSWORD_LENGTH, isValidPasswordLength } from "@/lib/password";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -13,8 +14,14 @@ export async function POST(req: NextRequest) {
     if (!currentPassword || !newPassword) {
       return NextResponse.json({ error: "Both current and new password are required." }, { status: 400 });
     }
-    if (newPassword.length < 8) {
-      return NextResponse.json({ error: "Please use a password of at least 8 characters." }, { status: 400 });
+    if (!isValidPasswordLength(newPassword)) {
+      return NextResponse.json(
+        { error: `Please use a password between 8 and ${MAX_PASSWORD_LENGTH} characters.` },
+        { status: 400 }
+      );
+    }
+    if (typeof currentPassword !== "string" || currentPassword.length > MAX_PASSWORD_LENGTH) {
+      return NextResponse.json({ error: "Your current password is incorrect." }, { status: 401 });
     }
 
     await dbConnect();

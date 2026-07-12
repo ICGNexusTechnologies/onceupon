@@ -7,6 +7,7 @@ import Order from "@/models/Order";
 import Review from "@/models/Review";
 import { getSession, clearSessionCookie } from "@/lib/auth";
 import { isSuperAdminEmail } from "@/lib/admin";
+import { MAX_PASSWORD_LENGTH } from "@/lib/password";
 
 /** POST /api/auth/delete-account — permanently delete the current account (password required). */
 export async function POST(req: NextRequest) {
@@ -15,6 +16,9 @@ export async function POST(req: NextRequest) {
 
   const { password } = (await req.json().catch(() => ({}))) as { password?: string };
   if (!password) return NextResponse.json({ error: "Enter your password to confirm." }, { status: 400 });
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return NextResponse.json({ error: "Incorrect password." }, { status: 401 });
+  }
 
   await dbConnect();
   const user = await User.findById(session.userId);
